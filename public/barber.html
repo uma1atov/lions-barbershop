@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ru" style="background:#0a0a14">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>Кабинет барбера | The Lion's Den Barbershop</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo/logo-main.svg">
+  <style>
+    html { background: #0a0a14; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --gold: #c8a85c; --gold-dark: #b8963f; --dark: #1a1a2e; --dark-light: #16213e; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; min-height: 100vh; }
+
+    .header { background: var(--dark); color: #fff; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    .header-left { display: flex; align-items: center; gap: 1rem; }
+    .header-left a { color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.75rem; }
+    .logo-img { height: 36px; width: auto; }
+    .barber-badge { background: #818cf8; color: #fff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
+    .header-right { display: flex; align-items: center; gap: 1rem; }
+    .user-name { font-size: 0.85rem; color: #ccc; }
+    .btn-logout { background: none; border: 1px solid #555; color: #ccc; padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
+    .btn-logout:hover { border-color: #f66; color: #f66; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: #fff; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-align: center; }
+    .stat-card .num { font-size: 1.5rem; font-weight: 800; color: var(--dark); }
+    .stat-card .gold { color: var(--gold); }
+    .stat-card .label { font-size: 0.7rem; color: #999; margin-top: 0.25rem; }
+
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .tab { padding: 0.6rem 1.25rem; border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; background: #fff; color: #666; border: 1px solid #eee; transition: all 0.2s; }
+    .tab.active { background: var(--gold); color: var(--dark); border-color: var(--gold); }
+    .tab:hover { border-color: var(--gold); }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Date filter */
+    .date-filter { display: flex; gap: 0.5rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
+    .date-filter input { padding: 0.5rem 0.75rem; border: 2px solid #eee; border-radius: 8px; font-size: 0.85rem; outline: none; }
+    .date-filter input:focus { border-color: var(--gold); }
+    .date-filter .btn-today { background: var(--gold); color: var(--dark); border: none; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+
+    /* Appointment cards */
+    .apt-card { background: #fff; border-radius: 12px; padding: 1.25rem; margin-bottom: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .apt-info { flex: 1; min-width: 200px; }
+    .apt-info .time-badge { display: inline-block; background: var(--dark); color: var(--gold); padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; margin-right: 0.5rem; }
+    .apt-info .service { font-weight: 700; color: var(--dark); display: inline; }
+    .apt-info .client { color: #888; font-size: 0.8rem; margin-top: 0.25rem; }
+    .apt-info .price { color: var(--gold); font-weight: 600; font-size: 0.85rem; }
+    .apt-actions { display: flex; gap: 0.5rem; }
+    .btn-done { background: #d1fae5; color: #065f46; border: none; padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    .btn-done:hover { background: #a7f3d0; }
+    .btn-noshow { background: #fef3c7; color: #92400e; border: none; padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    .btn-noshow:hover { background: #fde68a; }
+    .badge { padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.65rem; font-weight: 600; }
+    .badge-scheduled { background: #dbeafe; color: #1e40af; }
+    .badge-completed { background: #d1fae5; color: #065f46; }
+    .badge-no_show { background: #fef3c7; color: #92400e; }
+
+    .empty { text-align: center; padding: 3rem; color: #999; }
+    .empty .icon { font-size: 3rem; margin-bottom: 1rem; }
+
+    /* Walk-in form */
+    .walkin-form { background: #fff; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); max-width: 500px; }
+    .walkin-form h3 { margin-bottom: 1.5rem; color: var(--dark); }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: #666; margin-bottom: 0.3rem; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.65rem 0.9rem; border: 2px solid #eee; border-radius: 8px; font-size: 0.85rem; outline: none; }
+    .form-group input:focus, .form-group select:focus { border-color: var(--gold); }
+    .form-group textarea { resize: vertical; min-height: 60px; }
+    .btn-submit { background: var(--gold); color: var(--dark); border: none; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+    .btn-submit:hover { background: var(--gold-dark); }
+    .msg { padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem; display: none; }
+    .msg-ok { background: #d1fae5; color: #065f46; }
+    .msg-err { background: #fee2e2; color: #991b1b; }
+
+    /* Profile */
+    .profile-card { background: #fff; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); max-width: 500px; }
+
+    @media (max-width: 600px) {
+      .apt-card { flex-direction: column; align-items: flex-start; }
+      .apt-actions { width: 100%; justify-content: flex-end; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body style="background:#0a0a14;color:#e0e0e0">
+  <header class="header">
+    <div class="header-left">
+      <a href="/" style="color:#e8c84a;font-weight:700;font-size:1rem;letter-spacing:2px;text-decoration:none">THE LION'S DEN</a>
+      <span class="barber-badge">БАРБЕР</span>
+    </div>
+    <div class="header-right">
+      <span class="user-name" id="userName"></span>
+      <button class="btn-logout" onclick="logout()">Выход</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="num gold" id="statRevenue">—</div><div class="label">Выручка</div></div>
+      <div class="stat-card"><div class="num" id="statBookings">—</div><div class="label">Записей</div></div>
+      <div class="stat-card"><div class="num" id="statAvg">—</div><div class="label">Средний чек</div></div>
+      <div class="stat-card"><div class="num" id="statToday">—</div><div class="label">На сегодня</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('schedule')">📅 Расписание</div>
+      <div class="tab" onclick="showTab('dayoffs')">🗓️ Выходные</div>
+      <div class="tab" onclick="showTab('walkin')">🚶 Walk-in</div>
+      <div class="tab" onclick="showTab('analytics')">📊 Аналитика</div>
+      <div class="tab" onclick="showTab('profile')">👤 Профиль</div>
+    </div>
+
+    <!-- Schedule -->
+    <div class="panel active" id="panelSchedule">
+      <div class="date-filter">
+        <input type="date" id="filterDate" onchange="loadAppointments()">
+        <button class="btn-today" onclick="setToday()">Сегодня</button>
+      </div>
+      <div id="appointmentsList"></div>
+    </div>
+
+    <!-- Day Offs -->
+    <div class="panel" id="panelDayoffs">
+      <div class="walkin-form">
+        <h3>🗓️ Мои выходные дни</h3>
+        <p style="color:#888;font-size:0.85rem;margin-bottom:1rem">Укажите даты, когда вы не будете работать. Клиенты не смогут записаться к вам в эти дни.</p>
+        <div class="msg msg-ok" id="dayoffOk"></div>
+        <div class="msg msg-err" id="dayoffErr"></div>
+        <div style="display:flex;gap:0.75rem;align-items:flex-end;margin-bottom:1.5rem;flex-wrap:wrap">
+          <div class="form-group" style="margin:0;flex:1;min-width:180px">
+            <label>Дата выходного</label>
+            <input type="date" id="dayoffDate">
+          </div>
+          <button class="btn-submit" onclick="addDayOff()" style="height:42px;white-space:nowrap">+ Добавить выходной</button>
+        </div>
+        <div id="dayoffsList" style="margin-top:1rem"></div>
+      </div>
+    </div>
+
+    <!-- Walk-in -->
+    <div class="panel" id="panelWalkin">
+      <div class="walkin-form">
+        <h3>🚶 Офлайн-визит (walk-in)</h3>
+        <div class="msg msg-ok" id="walkinOk"></div>
+        <div class="msg msg-err" id="walkinErr"></div>
+        <div class="form-group">
+          <label>Имя клиента *</label>
+          <input type="text" id="wiName" placeholder="Имя">
+        </div>
+        <div class="form-group">
+          <label>Телефон</label>
+          <input type="tel" id="wiPhone" placeholder="+7...">
+        </div>
+        <div class="form-group">
+          <label>Услуга *</label>
+          <select id="wiService"></select>
+        </div>
+        <div class="form-group">
+          <label>Заметки</label>
+          <textarea id="wiNotes" placeholder="Дополнительная информация"></textarea>
+        </div>
+        <button class="btn-submit" onclick="createWalkin()">Записать</button>
+      </div>
+    </div>
+
+    <!-- Analytics -->
+    <div class="panel" id="panelAnalytics">
+      <div class="date-filter" style="margin-bottom: 1.5rem;">
+        <label style="font-size: 0.8rem; color: #666; font-weight: 600;">Период:</label>
+        <input type="date" id="analFrom">
+        <span style="color: #999;">—</span>
+        <input type="date" id="analTo">
+        <button class="btn-today" onclick="loadAnalytics()">Обновить</button>
+      </div>
+      <div class="stats-row" id="analStats">
+        <div class="stat-card"><div class="num gold" id="analRevenue">—</div><div class="label">Выручка за период</div></div>
+        <div class="stat-card"><div class="num" id="analBookings">—</div><div class="label">Записей</div></div>
+        <div class="stat-card"><div class="num" id="analAvg">—</div><div class="label">Средний чек</div></div>
+      </div>
+      <h4 style="margin: 1rem 0 0.5rem; color: var(--dark);">Топ услуг</h4>
+      <div id="analTopServices"></div>
+    </div>
+
+    <!-- Profile -->
+    <div class="panel" id="panelProfile">
+      <div class="profile-card">
+        <h3 style="margin-bottom: 1.5rem; color: var(--dark);">Мой профиль</h3>
+        <div class="msg msg-ok" id="profOk"></div>
+        <div class="msg msg-err" id="profErr"></div>
+        <div class="form-group">
+          <label>Имя</label>
+          <input type="text" id="profName">
+        </div>
+        <div class="form-group">
+          <label>Телефон</label>
+          <input type="tel" id="profPhone">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="profEmail">
+        </div>
+        <button class="btn-submit" onclick="saveProfile()">Сохранить</button>
+
+        <h4 style="margin: 2rem 0 1rem; padding-top: 1rem; border-top: 1px solid #eee; color: var(--dark);">🔒 Смена пароля</h4>
+        <div class="msg msg-ok" id="pwOk"></div>
+        <div class="msg msg-err" id="pwErr"></div>
+        <div class="form-group">
+          <label>Текущий пароль</label>
+          <input type="password" id="pwCurrent">
+        </div>
+        <div class="form-group">
+          <label>Новый пароль</label>
+          <input type="password" id="pwNew" placeholder="Минимум 4 символа">
+        </div>
+        <button class="btn-submit" onclick="changePassword()">Сменить пароль</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = '';
+    let token = localStorage.getItem('token');
+    let user = null;
+    try { user = JSON.parse(localStorage.getItem('user')); } catch(e) {}
+    if (!token || !user || user.role !== 'barber') { window.location.href = '/login.html'; }
+
+    document.getElementById('userName').textContent = user?.name || '';
+
+    const headers = () => ({
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+    });
+
+    function showTab(name) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      const tabs = { schedule: 0, dayoffs: 1, walkin: 2, analytics: 3, profile: 4 };
+      document.querySelectorAll('.tab')[tabs[name]].classList.add('active');
+      document.getElementById('panel' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+    }
+
+    function setToday() {
+      document.getElementById('filterDate').value = new Date().toISOString().split('T')[0];
+      loadAppointments();
+    }
+
+    function statusBadge(status) {
+      const map = {
+        scheduled: ['Запланировано', 'badge-scheduled'],
+        completed: ['Выполнено', 'badge-completed'],
+        no_show: ['Неявка', 'badge-no_show'],
+      };
+      const [text, cls] = map[status] || ['—', ''];
+      return `<span class="badge ${cls}">${text}</span>`;
+    }
+
+    // Load appointments
+    async function loadAppointments() {
+      const date = document.getElementById('filterDate').value;
+      if (!date) return;
+      try {
+        const res = await fetch(API + '/api/barber/my-appointments?date=' + date, { headers: headers() });
+        if (!res.ok) {
+          // Fallback for barbers without user_id link
+          const res2 = await fetch(API + '/api/barber/my-bookings', { headers: headers() });
+          if (res2.ok) {
+            const all = await res2.json();
+            const filtered = all.filter(b => b.date === date);
+            renderAppointments(filtered);
+          }
+          return;
+        }
+        const data = await res.json();
+        renderAppointments(data);
+      } catch(e) { console.error(e); }
+    }
+
+    function renderAppointments(appointments) {
+      const el = document.getElementById('appointmentsList');
+      // Count today
+      const today = new Date().toISOString().split('T')[0];
+      const todayApts = appointments.filter(a => a.date === today && a.status === 'scheduled');
+      document.getElementById('statToday').textContent = todayApts.length;
+
+      if (appointments.length === 0) {
+        el.innerHTML = '<div class="empty"><div class="icon">📅</div><p>Нет записей на эту дату</p></div>';
+        return;
+      }
+
+      // Sort by time
+      appointments.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+
+      el.innerHTML = appointments.map(a => `
+        <div class="apt-card">
+          <div class="apt-info">
+            <span class="time-badge">${a.time}</span>
+            <span class="service">${a.service_name || a.service}</span>
+            <div class="client">👤 ${a.client_name || a.name} ${a.client_phone || a.phone ? '· ' + (a.client_phone || a.phone) : ''}</div>
+            <div class="price">${a.price_final || '—'}₽</div>
+          </div>
+          <div class="apt-actions">
+            ${statusBadge(a.status)}
+            ${a.status === 'scheduled' ? `
+              <button class="btn-done" onclick="markStatus('${a.id}','completed')">✅ Выполнено</button>
+              <button class="btn-noshow" onclick="markStatus('${a.id}','no_show')">❌ Неявка</button>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function markStatus(id, status) {
+      const label = status === 'completed' ? 'Выполнено' : 'Неявка';
+      if (!confirm(`Отметить как "${label}"?`)) return;
+      try {
+        const res = await fetch(API + '/api/barber/appointments/' + id + '/status', {
+          method: 'PATCH',
+          headers: headers(),
+          body: JSON.stringify({ status }),
+        });
+        const data = await res.json();
+        if (!res.ok) { alert(data.error); return; }
+        loadAppointments();
+        loadStats();
+      } catch(e) { alert('Ошибка'); }
+    }
+
+    // Walk-in
+    async function loadServices() {
+      try {
+        const res = await fetch(API + '/api/services');
+        if (!res.ok) return;
+        const services = await res.json();
+        const sel = document.getElementById('wiService');
+        sel.innerHTML = services.map(s => `<option value="${s.id}">${s.name} — ${s.price}₽</option>`).join('');
+      } catch(e) {}
+    }
+
+    async function createWalkin() {
+      const client_name = document.getElementById('wiName').value.trim();
+      const client_phone = document.getElementById('wiPhone').value.trim();
+      const service = document.getElementById('wiService').value;
+      const notes = document.getElementById('wiNotes').value.trim();
+      const ok = document.getElementById('walkinOk');
+      const err = document.getElementById('walkinErr');
+      ok.style.display = 'none'; err.style.display = 'none';
+
+      if (!client_name || !service) { err.textContent = 'Укажите имя и услугу'; err.style.display = 'block'; return; }
+
+      try {
+        const res = await fetch(API + '/api/barber/walkin', {
+          method: 'POST',
+          headers: headers(),
+          body: JSON.stringify({ client_name, client_phone, service, notes }),
+        });
+        const data = await res.json();
+        if (!res.ok) { err.textContent = data.error; err.style.display = 'block'; return; }
+        ok.textContent = `Walk-in записан: ${data.booking.service_name} — ${data.booking.price_final}₽`;
+        ok.style.display = 'block';
+        document.getElementById('wiName').value = '';
+        document.getElementById('wiPhone').value = '';
+        document.getElementById('wiNotes').value = '';
+        loadStats();
+      } catch(e) { err.textContent = 'Ошибка'; err.style.display = 'block'; }
+    }
+
+    // Stats
+    async function loadStats() {
+      try {
+        const res = await fetch(API + '/api/barber/my-analytics', { headers: headers() });
+        if (!res.ok) return;
+        const s = await res.json();
+        document.getElementById('statRevenue').textContent = s.total_revenue.toLocaleString('ru-RU') + '₽';
+        document.getElementById('statBookings').textContent = s.total_bookings;
+        document.getElementById('statAvg').textContent = s.avg_check + '₽';
+      } catch(e) {}
+    }
+
+    async function loadAnalytics() {
+      const from = document.getElementById('analFrom').value;
+      const to = document.getElementById('analTo').value;
+      let url = API + '/api/barber/my-analytics';
+      const params = [];
+      if (from) params.push('from=' + from);
+      if (to) params.push('to=' + to);
+      if (params.length) url += '?' + params.join('&');
+
+      try {
+        const res = await fetch(url, { headers: headers() });
+        if (!res.ok) return;
+        const s = await res.json();
+        document.getElementById('analRevenue').textContent = s.total_revenue.toLocaleString('ru-RU') + '₽';
+        document.getElementById('analBookings').textContent = s.total_bookings;
+        document.getElementById('analAvg').textContent = s.avg_check + '₽';
+
+        const el = document.getElementById('analTopServices');
+        if (s.top_services.length === 0) {
+          el.innerHTML = '<p style="color: #999;">Нет данных</p>';
+        } else {
+          el.innerHTML = s.top_services.map((t, i) => `
+            <div style="background: #fff; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+              <span><strong>${i + 1}.</strong> ${t.name}</span>
+              <span style="color: var(--gold); font-weight: 600;">${t.count} раз</span>
+            </div>
+          `).join('');
+        }
+      } catch(e) {}
+    }
+
+    // Profile
+    async function loadProfile() {
+      try {
+        const res = await fetch(API + '/api/me', { headers: headers() });
+        if (!res.ok) return;
+        const u = await res.json();
+        document.getElementById('profName').value = u.name || '';
+        document.getElementById('profPhone').value = u.phone || '';
+        document.getElementById('profEmail').value = u.email || '';
+      } catch(e) {}
+    }
+
+    async function saveProfile() {
+      const name = document.getElementById('profName').value.trim();
+      const phone = document.getElementById('profPhone').value.trim();
+      const email = document.getElementById('profEmail').value.trim();
+      const ok = document.getElementById('profOk');
+      const err = document.getElementById('profErr');
+      ok.style.display = 'none'; err.style.display = 'none';
+      try {
+        const res = await fetch(API + '/api/me', { method: 'PATCH', headers: headers(), body: JSON.stringify({ name, phone, email }) });
+        const data = await res.json();
+        if (!res.ok) { err.textContent = data.error; err.style.display = 'block'; return; }
+        ok.textContent = 'Сохранено'; ok.style.display = 'block';
+        user.name = data.name; localStorage.setItem('user', JSON.stringify(user));
+        document.getElementById('userName').textContent = data.name;
+      } catch(e) { err.textContent = 'Ошибка'; err.style.display = 'block'; }
+    }
+
+    async function changePassword() {
+      const current = document.getElementById('pwCurrent').value;
+      const newPw = document.getElementById('pwNew').value;
+      const ok = document.getElementById('pwOk');
+      const err = document.getElementById('pwErr');
+      ok.style.display = 'none'; err.style.display = 'none';
+      if (!current || !newPw) { err.textContent = 'Заполните оба поля'; err.style.display = 'block'; return; }
+      try {
+        const res = await fetch(API + '/api/me/password', { method: 'PATCH', headers: headers(), body: JSON.stringify({ current_password: current, new_password: newPw }) });
+        const data = await res.json();
+        if (!res.ok) { err.textContent = data.error; err.style.display = 'block'; return; }
+        ok.textContent = 'Пароль изменён'; ok.style.display = 'block';
+        document.getElementById('pwCurrent').value = '';
+        document.getElementById('pwNew').value = '';
+      } catch(e) { err.textContent = 'Ошибка'; err.style.display = 'block'; }
+    }
+
+    function logout() {
+      fetch(API + '/api/logout', { method: 'POST', headers: headers() }).catch(() => {});
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login.html';
+    }
+
+    // ── Day Offs ──────────────────────────────
+    async function loadDayOffs() {
+      try {
+        const res = await fetch(API + '/api/barber/my-day-offs', { headers: headers() });
+        const data = await res.json();
+        const list = document.getElementById('dayoffsList');
+        const dayOffs = data.day_offs || [];
+        const today = new Date().toISOString().split('T')[0];
+
+        if (dayOffs.length === 0) {
+          list.innerHTML = '<p style="color:#888;text-align:center;padding:2rem">У вас нет запланированных выходных</p>';
+          return;
+        }
+
+        // Filter: show only future + today
+        const upcoming = dayOffs.filter(d => d >= today);
+        const past = dayOffs.filter(d => d < today);
+
+        let html = '';
+        if (upcoming.length) {
+          html += '<h4 style="margin-bottom:0.75rem;color:#333">Предстоящие выходные</h4>';
+          upcoming.forEach(d => {
+            const dateObj = new Date(d + 'T00:00:00');
+            const dayName = dateObj.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;background:#f8f8f8;border-radius:8px;margin-bottom:0.5rem">';
+            html += '<span style="font-weight:500">📅 ' + dayName + ' <span style="color:#888;font-size:0.8rem">(' + d + ')</span></span>';
+            html += '<button onclick="removeDayOff(\'' + d + '\')" style="background:#fee;color:#c00;border:none;padding:0.35rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem">✕ Убрать</button>';
+            html += '</div>';
+          });
+        }
+        if (past.length) {
+          html += '<h4 style="margin:1rem 0 0.75rem;color:#999;font-size:0.85rem">Прошедшие</h4>';
+          past.slice(-5).forEach(d => {
+            html += '<div style="padding:0.5rem 1rem;color:#999;font-size:0.85rem">📅 ' + d + '</div>';
+          });
+        }
+        list.innerHTML = html;
+      } catch (e) {
+        document.getElementById('dayoffsList').innerHTML = '<p style="color:#c00">Ошибка загрузки</p>';
+      }
+    }
+
+    async function addDayOff() {
+      const date = document.getElementById('dayoffDate').value;
+      const ok = document.getElementById('dayoffOk');
+      const err = document.getElementById('dayoffErr');
+      ok.style.display = 'none'; err.style.display = 'none';
+
+      if (!date) { err.textContent = 'Выберите дату'; err.style.display = 'block'; return; }
+
+      try {
+        const res = await fetch(API + '/api/barber/my-day-offs', {
+          method: 'POST',
+          headers: headers(),
+          body: JSON.stringify({ date }),
+        });
+        const data = await res.json();
+        if (!res.ok) { err.textContent = data.error; err.style.display = 'block'; return; }
+
+        const dateObj = new Date(date + 'T00:00:00');
+        const dayName = dateObj.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+        ok.textContent = '✅ Выходной добавлен: ' + dayName;
+        ok.style.display = 'block';
+        document.getElementById('dayoffDate').value = '';
+        loadDayOffs();
+      } catch (e) {
+        err.textContent = 'Ошибка'; err.style.display = 'block';
+      }
+    }
+
+    async function removeDayOff(date) {
+      try {
+        const res = await fetch(API + '/api/barber/my-day-offs', {
+          method: 'DELETE',
+          headers: headers(),
+          body: JSON.stringify({ date }),
+        });
+        if (res.ok) loadDayOffs();
+      } catch (e) { /* ignore */ }
+    }
+
+    // Init
+    setToday();
+    loadStats();
+    loadServices();
+    loadProfile();
+    loadDayOffs();
+  </script>
+</body>
+</html>

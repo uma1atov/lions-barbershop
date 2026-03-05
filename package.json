@@ -1,0 +1,27 @@
+{
+  "name": "lions-den-barbershop",
+  "version": "1.0.0",
+  "description": "The Lion's Den Barbershop — система онлайн-записи",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "migrate": "node scripts/migrate.js",
+    "seed": "node scripts/seed-owner.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["barbershop", "booking", "salon"],
+  "author": "The Lion's Den",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.8"
+  }
+}

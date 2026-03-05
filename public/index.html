@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ru" style="background:#0a0a14">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>The Lion's Den Barbershop | Мужская парикмахерская</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo/logo-main.svg">
+  <link rel="apple-touch-icon" href="/assets/logo/logo-main.svg">
+  <meta property="og:title" content="The Lion's Den Barbershop">
+  <meta property="og:description" content="Мужские стрижки, бритьё и моделирование бороды от лучших барберов">
+  <meta property="og:image" content="/assets/logo/logo-main.svg">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Lion's Den Barbershop">
+  <meta name="twitter:image" content="/assets/logo/logo-main.svg">
+  <link rel="preload" as="image" href="/assets/logo/logo-main.svg">
+  <style>
+    html { background: #0a0a14; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold: #c8a85c;
+      --gold-dark: #b8963f;
+      --dark: #1a1a2e;
+      --dark-light: #16213e;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #333; }
+    a { text-decoration: none; color: inherit; }
+
+    /* HEADER */
+    .header { background: var(--dark); color: #fff; padding: 1rem 0; position: sticky; top: 0; z-index: 40; }
+    .header .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+    .logo { display: flex; align-items: center; gap: 0.75rem; min-width: 0; flex-shrink: 1; }
+    .logo a { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit; }
+    .logo-img { height: 50px; width: auto; object-fit: contain; }
+    .logo-text h1 { font-size: 1.25rem; letter-spacing: 2px; white-space: nowrap; }
+    .logo-text p { font-size: 0.65rem; color: var(--gold); text-transform: uppercase; letter-spacing: 4px; }
+    @media (max-width: 768px) {
+      .logo-img { height: 38px; }
+      .logo-text h1 { font-size: 0.95rem; letter-spacing: 1px; }
+      .logo-text p { font-size: 0.5rem; letter-spacing: 2px; }
+      .header .container { padding: 0 0.75rem; }
+      .header .btn-gold { padding: 0.4rem 0.85rem; font-size: 0.75rem; }
+      .header .btn-outline { padding: 0.35rem 0.75rem; font-size: 0.7rem; }
+      .header-actions { gap: 0.4rem; }
+    }
+    @media (max-width: 480px) {
+      .logo-img { height: 36px; }
+      .logo-text h1 { font-size: 0.9rem; letter-spacing: 1px; }
+      .logo-text p { font-size: 0.5rem; letter-spacing: 1px; }
+      .logo a { gap: 0.5rem; }
+      .header .container { padding: 0 0.75rem; }
+      .header-actions { gap: 0.4rem; }
+      .btn-gold { padding: 0.4rem 0.9rem; font-size: 0.75rem; }
+      .btn-outline { padding: 0.35rem 0.75rem; font-size: 0.7rem; }
+    }
+    @media (max-width: 380px) {
+      .logo-text { display: none; }
+      .logo-img { height: 40px; }
+    }
+    .header nav { display: flex; gap: 2rem; font-size: 0.9rem; }
+    .header nav a:hover { color: var(--gold); }
+    .btn-gold { background: var(--gold); color: var(--dark); padding: 0.5rem 1.5rem; border-radius: 50px; font-weight: 600; font-size: 0.85rem; border: none; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+    .btn-gold:hover { background: var(--gold-dark); }
+
+    /* HERO */
+    .hero { background: var(--dark); color: #fff; text-align: center; padding: 6rem 1.5rem; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; top: -50px; left: -50px; width: 300px; height: 300px; background: var(--gold); border-radius: 50%; opacity: 0.07; filter: blur(80px); }
+    .hero::after { content: ''; position: absolute; bottom: -80px; right: -80px; width: 400px; height: 400px; background: var(--gold); border-radius: 50%; opacity: 0.07; filter: blur(80px); }
+    .hero-content { position: relative; z-index: 1; }
+    .hero-tag { color: var(--gold); text-transform: uppercase; letter-spacing: 6px; font-size: 0.8rem; margin-bottom: 1rem; }
+    .hero h2 { font-size: 3rem; font-weight: 800; line-height: 1.2; margin-bottom: 1.5rem; }
+    .hero h2 span { color: var(--gold); }
+    .hero p { color: #999; font-size: 1.1rem; max-width: 550px; margin: 0 auto 2.5rem; line-height: 1.7; }
+    .btn-gold-lg { background: var(--gold); color: var(--dark); padding: 1rem 2.5rem; border-radius: 50px; font-weight: 700; font-size: 1.1rem; border: none; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .btn-gold-lg:hover { background: var(--gold-dark); transform: scale(1.03); }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; max-width: 450px; margin: 4rem auto 0; }
+    .stats .num { font-size: 1.8rem; font-weight: 800; color: var(--gold); }
+    .stats .label { font-size: 0.8rem; color: #888; }
+
+    /* SERVICES */
+    .services { padding: 5rem 1.5rem; background: #fff; }
+    .section-tag { color: var(--gold); text-transform: uppercase; letter-spacing: 6px; font-size: 0.75rem; text-align: center; margin-bottom: 0.5rem; }
+    .section-title { font-size: 2rem; font-weight: 800; text-align: center; color: var(--dark); margin-bottom: 3rem; }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .service-card { background: #f9f9f9; border-radius: 16px; padding: 2rem; text-align: center; border: 1px solid #eee; transition: all 0.3s; }
+    .service-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); border-color: rgba(200,168,92,0.3); }
+    .service-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .service-name { font-weight: 700; font-size: 1.1rem; color: var(--dark); margin-bottom: 0.3rem; }
+    .service-desc { color: #888; font-size: 0.85rem; margin-bottom: 1rem; }
+    .service-price { color: var(--gold); font-weight: 700; font-size: 1.3rem; }
+    .service-dur { color: #aaa; font-size: 0.75rem; margin-top: 0.25rem; }
+
+    /* BOOKING CALENDAR */
+    .booking { padding: 5rem 1.5rem; background: #f5f5f5; }
+    .booking-container { max-width: 1100px; margin: 0 auto; }
+    .booking-grid { display: grid; grid-template-columns: 380px 1fr; gap: 2rem; }
+    @media (max-width: 900px) { .booking-grid { grid-template-columns: 1fr; } }
+
+    /* Calendar widget */
+    .cal-card { background: #fff; border-radius: 16px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); overflow: hidden; }
+    .cal-header { background: var(--dark); color: #fff; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+    .cal-header .month-title { font-weight: 700; font-size: 1rem; }
+    .cal-nav { background: none; border: none; color: #fff; font-size: 1.3rem; cursor: pointer; padding: 0.3rem 0.6rem; border-radius: 8px; transition: background 0.2s; }
+    .cal-nav:hover { background: rgba(255,255,255,0.15); }
+    .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; padding: 0.75rem 0.5rem 0.5rem; font-size: 0.75rem; font-weight: 600; color: #999; text-transform: uppercase; }
+    .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 0 0.5rem 0.75rem; }
+    .cal-day { width: 100%; aspect-ratio: 1; border-radius: 10px; border: none; background: none; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; color: var(--dark); font-weight: 500; display: flex; align-items: center; justify-content: center; }
+    .cal-day:hover:not(.empty):not(.past):not(.day-off) { background: rgba(200,168,92,0.15); }
+    .cal-day.today { border: 2px solid var(--gold); }
+    .cal-day.selected { background: var(--gold) !important; color: var(--dark) !important; font-weight: 700; }
+    .cal-day.past { color: #ccc; cursor: default; }
+    .cal-day.day-off { color: #e57373; cursor: default; }
+    .cal-day.empty { cursor: default; }
+    .cal-day.has-bookings::after { content: ''; position: absolute; bottom: 3px; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; }
+    .cal-day { position: relative; }
+
+    /* Right panel — slots + form */
+    .slots-panel { display: flex; flex-direction: column; gap: 1.5rem; }
+    .slots-card { background: #fff; border-radius: 16px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); padding: 1.5rem; }
+    .slots-title { font-weight: 700; font-size: 1.1rem; color: var(--dark); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .slots-title .date-badge { background: var(--gold); color: var(--dark); padding: 0.2rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+    .no-date-msg { text-align: center; padding: 3rem 1rem; color: #999; }
+    .no-date-msg .icon { font-size: 3rem; margin-bottom: 1rem; }
+    .no-date-msg p { font-size: 0.95rem; }
+
+    /* Service selector */
+    .svc-select-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-bottom: 1.25rem; }
+    .svc-option { padding: 0.65rem 0.75rem; border: 2px solid #eee; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: center; background: #fff; }
+    .svc-option:hover { border-color: rgba(200,168,92,0.5); }
+    .svc-option.active { border-color: var(--gold); background: rgba(200,168,92,0.08); }
+    .svc-option .svc-name { font-size: 0.8rem; font-weight: 600; color: var(--dark); }
+    .svc-option .svc-price { font-size: 0.75rem; color: var(--gold); font-weight: 600; margin-top: 0.15rem; }
+    .svc-option .svc-time { font-size: 0.65rem; color: #aaa; }
+
+    /* Master selector */
+    .master-select { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .master-opt { padding: 0.5rem 1rem; border: 2px solid #eee; border-radius: 50px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; background: #fff; color: var(--dark); }
+    .master-opt:hover { border-color: rgba(200,168,92,0.5); }
+    .master-opt.active { border-color: var(--gold); background: rgba(200,168,92,0.08); }
+
+    /* Time slots grid */
+    .slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.5rem; margin-bottom: 1.25rem; }
+    .slot { padding: 0.6rem; text-align: center; border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 2px solid #eee; background: #fff; color: var(--dark); }
+    .slot:hover:not(.busy) { border-color: rgba(200,168,92,0.5); }
+    .slot.active { background: var(--gold); color: var(--dark); border-color: var(--gold); }
+    .slot.busy { background: #f5f5f5; color: #ccc; cursor: not-allowed; border-color: #eee; text-decoration: line-through; }
+    .slot .slot-status { font-size: 0.6rem; font-weight: 400; margin-top: 2px; }
+    .slot.busy .slot-status { color: #e57373; text-decoration: none; }
+    .slot.past-slot { background: #eee; color: #bbb; border-color: #ddd; opacity: 0.6; }
+    .slot.past-slot .slot-status { color: #bbb; }
+
+    /* Booking form */
+    .book-form { display: flex; flex-direction: column; gap: 0.75rem; }
+    .book-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 500px) { .book-form .form-row { grid-template-columns: 1fr; } }
+    .book-form input { padding: 0.75rem 1rem; border: 2px solid #eee; border-radius: 12px; font-size: 0.85rem; outline: none; transition: border 0.2s; width: 100%; }
+    .book-form input:focus { border-color: var(--gold); }
+    .book-btn { background: var(--gold); color: var(--dark); padding: 0.85rem; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .book-btn:hover { background: var(--gold-dark); }
+    .book-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .book-summary { background: rgba(200,168,92,0.08); border: 1px solid rgba(200,168,92,0.2); border-radius: 12px; padding: 1rem; font-size: 0.85rem; color: var(--dark); line-height: 1.6; }
+    .book-summary strong { color: var(--gold); }
+
+    .closed-msg { text-align: center; padding: 2rem; color: #e57373; font-weight: 600; font-size: 1.1rem; }
+    .closed-msg .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+    .step-label { font-size: 0.85rem; font-weight: 600; color: var(--dark); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+    .step-label .num { width: 22px; height: 22px; background: var(--gold); color: var(--dark); border-radius: 50%; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+    /* Success overlay */
+    .book-success { text-align: center; padding: 2rem; }
+    .book-success .check { font-size: 4rem; margin-bottom: 1rem; }
+    .book-success h3 { font-size: 1.3rem; color: var(--dark); margin-bottom: 0.5rem; }
+    .book-success p { color: #888; font-size: 0.9rem; line-height: 1.5; }
+    .book-success .btn-new { margin-top: 1.5rem; background: var(--gold); color: var(--dark); border: none; padding: 0.7rem 2rem; border-radius: 50px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+    .book-success .btn-new:hover { background: var(--gold-dark); }
+
+    /* MASTERS */
+    .masters { padding: 5rem 1.5rem; background: #fff; }
+    .masters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; max-width: 900px; margin: 0 auto; }
+    .master-card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 15px rgba(0,0,0,0.05); transition: box-shadow 0.3s; }
+    .master-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+    .master-bg { height: 180px; display: flex; align-items: center; justify-content: center; }
+    .master-bg.amber { background: linear-gradient(135deg, #b45309, #eab308); }
+    .master-bg.stone { background: linear-gradient(135deg, #57534e, #a8a29e); }
+    .master-bg.zinc { background: linear-gradient(135deg, #3f3f46, #71717a); }
+    .master-avatar { width: 90px; height: 90px; background: rgba(255,255,255,0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2.5rem; font-weight: 700; backdrop-filter: blur(8px); }
+    .master-info { padding: 1.5rem; text-align: center; }
+    .master-info h3 { font-size: 1.2rem; color: var(--dark); }
+    .master-info .role { color: var(--gold); font-size: 0.85rem; font-weight: 500; margin-top: 0.2rem; }
+    .master-info .spec { color: #888; font-size: 0.8rem; margin-top: 0.5rem; }
+    .master-info .exp { color: #aaa; font-size: 0.75rem; margin-top: 0.2rem; }
+
+    /* CONTACTS */
+    .contacts { padding: 5rem 1.5rem; background: var(--dark); color: #fff; }
+    .contacts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2.5rem; max-width: 900px; margin: 0 auto; text-align: center; }
+    .contact-icon { width: 50px; height: 50px; background: rgba(200,168,92,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; color: var(--gold); font-size: 1.3rem; }
+    .contacts h3 { font-weight: 700; margin-bottom: 0.5rem; }
+    .contacts .info { color: #999; font-size: 0.9rem; line-height: 1.6; }
+    .chat-link { color: var(--gold); cursor: pointer; font-size: 0.9rem; margin-top: 0.3rem; }
+    .chat-link:hover { text-decoration: underline; }
+
+    /* FOOTER */
+    .footer { background: var(--dark-light); color: #666; padding: 1.5rem; text-align: center; font-size: 0.8rem; border-top: 1px solid #2a2a3e; }
+
+    /* CHAT WIDGET */
+    .chat-btn { position: fixed; bottom: 24px; right: 24px; z-index: 50; width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.3); transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
+    .chat-btn.open { background: #666; }
+    .chat-btn.closed { background: var(--gold); }
+    .chat-btn.closed:hover { background: var(--gold-dark); transform: scale(1.1); }
+    .chat-btn svg { width: 28px; height: 28px; }
+    .chat-btn.closed svg { color: var(--dark); }
+    .chat-btn.open svg { color: #fff; }
+
+    .chat-window { position: fixed; bottom: 100px; right: 24px; z-index: 50; width: 370px; max-width: calc(100vw - 2rem); height: 520px; background: #fff; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); border: 1px solid #e5e5e5; display: none; flex-direction: column; overflow: hidden; animation: slideUp 0.3s ease; }
+    .chat-window.active { display: flex; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    .chat-header { background: var(--dark); color: #fff; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
+    .chat-header .dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; display: inline-block; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; background: #f9f9f9; }
+    .chat-messages::-webkit-scrollbar { width: 5px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+    .msg { max-width: 80%; padding: 0.75rem 1rem; border-radius: 16px; font-size: 0.85rem; line-height: 1.5; animation: fadeMsg 0.3s ease; white-space: pre-line; }
+    @keyframes fadeMsg { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .msg.bot { background: #fff; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #eee; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+    .msg.user { background: var(--gold); color: var(--dark); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .quick-btn { padding: 0.5rem 0.75rem; background: #fff; border: 1px solid rgba(200,168,92,0.3); border-radius: 12px; font-size: 0.75rem; cursor: pointer; transition: background 0.2s; color: var(--dark); }
+    .quick-btn:hover { background: rgba(200,168,92,0.1); }
+    .typing { display: flex; gap: 5px; padding: 0.75rem 1rem; background: #fff; border-radius: 16px; border-bottom-left-radius: 4px; align-self: flex-start; border: 1px solid #eee; }
+    .typing span { width: 8px; height: 8px; background: var(--gold); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+    .typing span:nth-child(1) { animation-delay: -0.32s; }
+    .typing span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+    .chat-input-area { padding: 0.75rem; border-top: 1px solid #eee; background: #fff; flex-shrink: 0; display: flex; gap: 0.5rem; }
+    .chat-input-area input { flex: 1; padding: 0.75rem 1rem; border: 1px solid #ddd; border-radius: 12px; font-size: 0.85rem; outline: none; transition: border 0.2s; }
+    .chat-input-area input:focus { border-color: var(--gold); }
+    .send-btn { background: var(--gold); border: none; border-radius: 12px; padding: 0 0.85rem; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; }
+    .send-btn:hover { background: var(--gold-dark); }
+    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .send-btn svg { width: 20px; height: 20px; color: var(--dark); }
+
+    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+    .btn-outline { background: none; border: 1px solid #555; color: #ccc; padding: 0.45rem 1.2rem; border-radius: 50px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .user-pill { display: flex; align-items: center; gap: 0.5rem; background: rgba(200,168,92,0.15); padding: 0.3rem 0.9rem 0.3rem 0.5rem; border-radius: 50px; font-size: 0.8rem; color: var(--gold); cursor: pointer; border: none; }
+    .user-pill .avatar { width: 28px; height: 28px; background: var(--gold); color: var(--dark); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; }
+    .discount-bar { background: linear-gradient(90deg, var(--gold), var(--gold-dark)); color: var(--dark); text-align: center; padding: 0.5rem; font-size: 0.8rem; font-weight: 600; }
+
+    @media (max-width: 768px) {
+      .header nav { display: none; }
+      .header-actions .btn-gold { display: none; }
+      .hero h2 { font-size: 2rem; }
+      .chat-window { width: calc(100vw - 1rem); right: 0.5rem; bottom: 90px; height: 60vh; }
+    }
+  </style>
+</head>
+<body style="background:#0a0a14;color:#e0e0e0">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container">
+      <div class="logo">
+        <a href="/">
+          <div class="logo-text">
+            <h1>THE LION'S DEN</h1>
+            <p>barbershop</p>
+          </div>
+        </a>
+      </div>
+      <nav>
+        <a href="#services">Услуги</a>
+        <a href="#booking">Записаться</a>
+        <a href="#masters">Барберы</a>
+        <a href="#contacts">Контакты</a>
+      </nav>
+      <div class="header-actions">
+        <div id="authArea"></div>
+        <button class="btn-gold" onclick="openChat()">Записаться</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-tag">Мужская парикмахерская</div>
+      <h2>Стиль — это<br><span>характер</span></h2>
+      <p>Мужские стрижки, бритьё и моделирование бороды от лучших барберов. Запишитесь через ИИ-помощника за пару сообщений.</p>
+      <button class="btn-gold-lg" onclick="openChat()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+        Записаться онлайн
+      </button>
+      <div class="stats">
+        <div><div class="num">5+</div><div class="label">лет опыта</div></div>
+        <div><div class="num">5000+</div><div class="label">клиентов</div></div>
+        <div><div class="num">3</div><div class="label">барбера</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="services" id="services">
+    <div class="section-tag">Наш прайс</div>
+    <div class="section-title">Услуги</div>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">✂️</div>
+        <div class="service-name">Мужская стрижка</div>
+        <div class="service-desc">Классическая или модельная стрижка любой сложности</div>
+        <div class="service-price">1 500 ₽</div>
+        <div class="service-dur">45 мин</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">💈</div>
+        <div class="service-name">Стрижка машинкой</div>
+        <div class="service-desc">Фейд, андеркат, стрижка под машинку</div>
+        <div class="service-price">800 ₽</div>
+        <div class="service-dur">30 мин</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🧔</div>
+        <div class="service-name">Моделирование бороды</div>
+        <div class="service-desc">Оформление, коррекция и уход за бородой</div>
+        <div class="service-price">1 000 ₽</div>
+        <div class="service-dur">30 мин</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🪒</div>
+        <div class="service-name">Королевское бритьё</div>
+        <div class="service-desc">Бритьё опасной бритвой с горячим полотенцем</div>
+        <div class="service-price">1 200 ₽</div>
+        <div class="service-dur">40 мин</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">👑</div>
+        <div class="service-name">Стрижка + борода</div>
+        <div class="service-desc">Комплекс: стрижка и моделирование бороды</div>
+        <div class="service-price">2 200 ₽</div>
+        <div class="service-dur">60 мин</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🎨</div>
+        <div class="service-name">Камуфляж седины</div>
+        <div class="service-desc">Тонирование седых волос, естественный результат</div>
+        <div class="service-price">1 500 ₽</div>
+        <div class="service-dur">45 мин</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOOKING CALENDAR -->
+  <section class="booking" id="booking">
+    <div class="booking-container">
+      <div class="section-tag">Онлайн-запись</div>
+      <div class="section-title">Выберите дату и время</div>
+
+      <div class="booking-grid">
+        <!-- Left: Calendar -->
+        <div>
+          <div class="cal-card">
+            <div class="cal-header">
+              <button class="cal-nav" onclick="calPrev()">◀</button>
+              <span class="month-title" id="calMonthTitle"></span>
+              <button class="cal-nav" onclick="calNext()">▶</button>
+            </div>
+            <div class="cal-weekdays">
+              <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+            </div>
+            <div class="cal-days" id="calDays"></div>
+          </div>
+
+          <!-- Legend -->
+          <div style="display:flex;gap:1.25rem;margin-top:1rem;font-size:0.75rem;color:#888;justify-content:center;flex-wrap:wrap">
+            <span>🟢 Свободно</span>
+            <span>🔴 Занято</span>
+            <span style="color:#e57373" id="dayOffLegend"></span>
+          </div>
+        </div>
+
+        <!-- Right: Slots & Form -->
+        <div class="slots-panel" id="slotsPanel">
+          <div class="slots-card">
+            <div class="no-date-msg" id="noDateMsg">
+              <div class="icon">📅</div>
+              <p>Выберите дату в календаре<br><span style="color:#ccc;font-size:0.8rem">и мы покажем свободные слоты</span></p>
+            </div>
+            <div id="slotsContent" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MASTERS -->
+  <section class="masters" id="masters">
+    <div class="section-tag">Команда</div>
+    <div class="section-title">Наши барберы</div>
+    <div class="masters-grid">
+      <div class="master-card">
+        <div class="master-bg amber"><div class="master-avatar">А</div></div>
+        <div class="master-info">
+          <h3>Артём</h3>
+          <div class="role">Старший барбер</div>
+          <div class="spec">Фейды, классика, бритьё</div>
+          <div class="exp">8 лет опыта</div>
+        </div>
+      </div>
+      <div class="master-card">
+        <div class="master-bg stone"><div class="master-avatar">Д</div></div>
+        <div class="master-info">
+          <h3>Дмитрий</h3>
+          <div class="role">Барбер-стилист</div>
+          <div class="spec">Модельные стрижки, бороды</div>
+          <div class="exp">5 лет опыта</div>
+        </div>
+      </div>
+      <div class="master-card">
+        <div class="master-bg zinc"><div class="master-avatar">Р</div></div>
+        <div class="master-info">
+          <h3>Руслан</h3>
+          <div class="role">Барбер</div>
+          <div class="spec">Камуфляж, стрижки машинкой</div>
+          <div class="exp">6 лет опыта</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTS -->
+  <section class="contacts" id="contacts">
+    <div class="section-tag">Как нас найти</div>
+    <div class="section-title" style="color:#fff">Контакты</div>
+    <div class="contacts-grid">
+      <div>
+        <div class="contact-icon">📍</div>
+        <h3>Адрес</h3>
+        <div class="info">ул. Примерная, д. 42<br>Москва</div>
+      </div>
+      <div>
+        <div class="contact-icon">🕐</div>
+        <h3>Режим работы</h3>
+        <div class="info">Ежедневно: 9:00 — 20:00<br>Без выходных</div>
+      </div>
+      <div>
+        <div class="contact-icon">📞</div>
+        <h3>Телефон</h3>
+        <div class="info">+7 (960) 408-37-44</div>
+        <div class="chat-link" onclick="openChat()">Или напишите в чат</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    &copy; 2026 The Lion's Den Barbershop. Все права защищены.
+  </footer>
+
+  <!-- CHAT WIDGET -->
+  <button class="chat-btn closed" id="chatBtn" onclick="toggleChat()">
+    <svg id="chatIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+    <svg id="closeIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+  </button>
+
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <div style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:1.4rem">🦁</div>
+      <div>
+        <div style="font-weight:700;font-size:0.85rem">The Lion's Den Barbershop</div>
+        <div style="font-size:0.7rem;color:#999"><span class="dot"></span> ИИ-помощник онлайн</div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg bot">Здравствуйте! Я ИИ-помощник барбершопа The Lion's Den. Помогу записаться на стрижку, бритьё или моделирование бороды. Выберите услугу или напишите свой вопрос 👇</div>
+      <div class="quick-actions" id="quickActions">
+        <button class="quick-btn" onclick="quickSend('Хочу записаться на мужскую стрижку')">✂️ Мужская стрижка</button>
+        <button class="quick-btn" onclick="quickSend('Хочу записаться: стрижка + борода')">👑 Стрижка + борода</button>
+        <button class="quick-btn" onclick="quickSend('Хочу записаться на королевское бритьё')">🪒 Бритьё</button>
+        <button class="quick-btn" onclick="quickSend('Хочу записаться на моделирование бороды')">🧔 Борода</button>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Напишите сообщение..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="send-btn" id="sendBtn" onclick="sendMsg()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // === AUTH STATE ===
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    let currentUser = userStr ? JSON.parse(userStr) : null;
+
+    function renderAuth() {
+      const area = document.getElementById('authArea');
+      if (currentUser) {
+        area.innerHTML = `
+          <button class="user-pill" onclick="showUserMenu()">
+            <span class="avatar">${currentUser.name[0].toUpperCase()}</span>
+            ${currentUser.name}
+          </button>`;
+        // Show discount bar for clients
+        if (currentUser.role === 'client') {
+          const bar = document.createElement('div');
+          bar.className = 'discount-bar';
+          bar.textContent = '🎉 Ваша скидка 10% активна на все услуги!';
+          document.body.insertBefore(bar, document.body.firstChild.nextSibling);
+        }
+      } else {
+        area.innerHTML = `<a href="/login.html" class="btn-outline">Войти</a>`;
+      }
+    }
+
+    function showUserMenu() {
+      if (currentUser.role === 'admin') {
+        window.location.href = '/admin.html';
+      } else {
+        if (confirm('Выйти из аккаунта?')) {
+          fetch('/api/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          location.reload();
+        }
+      }
+    }
+
+    renderAuth();
+
+    // === CHAT ===
+    const chatWindow = document.getElementById('chatWindow');
+    const chatBtn = document.getElementById('chatBtn');
+    const chatIcon = document.getElementById('chatIcon');
+    const closeIcon = document.getElementById('closeIcon');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const quickActions = document.getElementById('quickActions');
+    let isOpen = false;
+    let isLoading = false;
+    let messages = [];
+
+    function toggleChat() {
+      isOpen = !isOpen;
+      chatWindow.classList.toggle('active', isOpen);
+      chatBtn.className = isOpen ? 'chat-btn open' : 'chat-btn closed';
+      chatIcon.style.display = isOpen ? 'none' : 'block';
+      closeIcon.style.display = isOpen ? 'block' : 'none';
+      if (isOpen) chatInput.focus();
+    }
+
+    function openChat() {
+      if (!isOpen) toggleChat();
+    }
+
+    function addMsg(role, text) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+      div.textContent = text;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTyping() {
+      const div = document.createElement('div');
+      div.className = 'typing';
+      div.id = 'typingIndicator';
+      div.innerHTML = '<span></span><span></span><span></span>';
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function hideTyping() {
+      const el = document.getElementById('typingIndicator');
+      if (el) el.remove();
+    }
+
+    async function sendMessage(text) {
+      if (isLoading) return;
+      text = text.trim();
+      if (!text) return;
+
+      if (quickActions) quickActions.style.display = 'none';
+      messages.push({ role: 'user', content: text });
+      addMsg('user', text);
+      chatInput.value = '';
+      isLoading = true;
+      showTyping();
+
+      try {
+        const hdrs = { 'Content-Type': 'application/json' };
+        if (token) hdrs['Authorization'] = 'Bearer ' + token;
+
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: hdrs,
+          body: JSON.stringify({ messages }),
+        });
+        const data = await res.json();
+        hideTyping();
+        const reply = res.ok ? data.message : (data.error || 'Ошибка. Попробуйте позже.');
+        messages.push({ role: 'assistant', content: reply });
+        addMsg('assistant', reply);
+      } catch (e) {
+        hideTyping();
+        addMsg('assistant', 'Не удалось подключиться. Проверьте соединение.');
+      }
+      isLoading = false;
+    }
+
+    function sendMsg() { sendMessage(chatInput.value); }
+    function quickSend(text) { sendMessage(text); }
+
+    // ===========================
+    // BOOKING CALENDAR
+    // ===========================
+    const MONTHS_RU = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const SERVICES_LIST = [
+      { id: 'haircut',    name: 'Мужская стрижка',      price: 1500, duration: 60, icon: '✂️' },
+      { id: 'machine',    name: 'Стрижка машинкой',     price: 800,  duration: 30, icon: '💈' },
+      { id: 'beard',      name: 'Моделирование бороды', price: 1000, duration: 30, icon: '🧔' },
+      { id: 'shave',      name: 'Королевское бритьё',   price: 1200, duration: 60, icon: '🪒' },
+      { id: 'complex',    name: 'Стрижка + борода',     price: 2200, duration: 60, icon: '👑' },
+      { id: 'camouflage', name: 'Камуфляж седины',      price: 1500, duration: 60, icon: '🎨' },
+    ];
+    const MASTERS_LIST = ['Артём', 'Дмитрий', 'Руслан'];
+
+    let calYear, calMonth;
+    let selectedDate = null;
+    let selectedService = null;
+    let selectedMaster = null;
+    let selectedTime = null;
+    let currentSlots = null;
+    let shopDayOff = -1; // -1 = no fixed day off
+    let shopHolidays = [];
+    const DAY_NAMES = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+
+    // Init calendar to current month + load settings
+    (async function initCal() {
+      const now = new Date();
+      calYear = now.getFullYear();
+      calMonth = now.getMonth();
+      try {
+        const res = await fetch('/api/shop-info');
+        if (res.ok) {
+          const s = await res.json();
+          shopDayOff = s.day_off !== undefined ? s.day_off : -1;
+          shopHolidays = s.holidays || [];
+        }
+      } catch(e) {}
+      // Update legend
+      const legend = document.getElementById('dayOffLegend');
+      if (shopDayOff >= 0) {
+        legend.textContent = DAY_NAMES[shopDayOff] + ' — выходной';
+      }
+      renderCalendar();
+    })();
+
+    function renderCalendar() {
+      const titleEl = document.getElementById('calMonthTitle');
+      titleEl.textContent = MONTHS_RU[calMonth] + ' ' + calYear;
+
+      const daysEl = document.getElementById('calDays');
+      daysEl.innerHTML = '';
+
+      const firstDay = new Date(calYear, calMonth, 1);
+      let startDay = firstDay.getDay(); // 0=Sun
+      startDay = startDay === 0 ? 6 : startDay - 1; // Convert to Mon=0
+
+      const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      // Empty cells
+      for (let i = 0; i < startDay; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'cal-day empty';
+        daysEl.appendChild(btn);
+      }
+
+      // Day cells
+      for (let d = 1; d <= daysInMonth; d++) {
+        const btn = document.createElement('button');
+        btn.className = 'cal-day';
+        btn.textContent = d;
+
+        const date = new Date(calYear, calMonth, d);
+        const dateStr = formatDate(date);
+        const isPast = date < today;
+        const isDayOff = (shopDayOff >= 0 && date.getDay() === shopDayOff) || shopHolidays.includes(dateStr);
+        const isToday = date.getTime() === today.getTime();
+        const isSelected = selectedDate === dateStr;
+
+        if (isPast) btn.classList.add('past');
+        if (isDayOff) btn.classList.add('day-off');
+        if (isToday) btn.classList.add('today');
+        if (isSelected) btn.classList.add('selected');
+
+        if (!isPast && !isDayOff) {
+          btn.onclick = () => selectDate(dateStr);
+        }
+
+        daysEl.appendChild(btn);
+      }
+    }
+
+    function formatDate(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function formatDateRu(dateStr) {
+      const [y, m, d] = dateStr.split('-');
+      const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+      return `${parseInt(d)} ${months[parseInt(m)-1]} ${y}`;
+    }
+
+    function calPrev() {
+      calMonth--;
+      if (calMonth < 0) { calMonth = 11; calYear--; }
+      renderCalendar();
+    }
+
+    function calNext() {
+      calMonth++;
+      if (calMonth > 11) { calMonth = 0; calYear++; }
+      renderCalendar();
+    }
+
+    async function selectDate(dateStr) {
+      selectedDate = dateStr;
+      selectedTime = null;
+      renderCalendar();
+
+      // Show loading
+      const content = document.getElementById('slotsContent');
+      const noMsg = document.getElementById('noDateMsg');
+      noMsg.style.display = 'none';
+      content.style.display = 'block';
+      content.innerHTML = '<div style="text-align:center;padding:2rem;color:#999"><div style="font-size:2rem;margin-bottom:0.5rem">⏳</div>Загрузка слотов...</div>';
+
+      try {
+        const res = await fetch(`/api/slots?date=${dateStr}`);
+        const data = await res.json();
+        currentSlots = data;
+
+        if (data.closed) {
+          content.innerHTML = `<div class="closed-msg"><div class="icon">😴</div>${data.message || 'Выходной день'}<br><span style="font-size:0.8rem;font-weight:400;color:#999">Выберите другую дату</span></div>`;
+          return;
+        }
+
+        renderBookingForm(data);
+      } catch (e) {
+        content.innerHTML = '<div style="text-align:center;padding:2rem;color:#e57373">Ошибка загрузки. Попробуйте ещё раз.</div>';
+      }
+    }
+
+    function renderBookingForm(data) {
+      const content = document.getElementById('slotsContent');
+      const isLoggedIn = !!currentUser;
+      const discountPct = (isLoggedIn && currentUser.role === 'client') ? 10 : 0;
+
+      let html = `
+        <div class="slots-title">Запись на <span class="date-badge">${formatDateRu(selectedDate)}</span></div>
+
+        <!-- Step 1: Service -->
+        <div class="step-label"><span class="num">1</span> Выберите услугу</div>
+        <div class="svc-select-grid">
+          ${SERVICES_LIST.map(s => {
+            const finalPrice = discountPct ? Math.round(s.price * (1 - discountPct / 100)) : s.price;
+            return `<div class="svc-option ${selectedService === s.id ? 'active' : ''}" onclick="pickService('${s.id}')">
+              <div class="svc-name">${s.icon} ${s.name}</div>
+              <div class="svc-price">${discountPct ? '<s style=\"color:#ccc;font-size:0.65rem\">' + s.price + '₽</s> ' + finalPrice + '₽' : s.price + '₽'}</div>
+              <div class="svc-time">${s.duration} мин</div>
+            </div>`;
+          }).join('')}
+        </div>
+
+        <!-- Step 2: Master -->
+        <div class="step-label"><span class="num">2</span> Выберите барбера</div>
+        <div class="master-select">
+          <div class="master-opt ${selectedMaster === null ? 'active' : ''}" onclick="pickMaster(null)">Любой</div>
+          ${MASTERS_LIST.map(m => `<div class="master-opt ${selectedMaster === m ? 'active' : ''}" onclick="pickMaster('${m}')">${m}</div>`).join('')}
+        </div>
+
+        <!-- Step 3: Time -->
+        <div class="step-label"><span class="num">3</span> Выберите время</div>
+        <div class="slots-grid">`;
+
+      data.slots.forEach(slot => {
+        let isBusy = false;
+        let statusText = '';
+        const isPast = !!slot.isPast; // Прошедший слот
+
+        if (isPast) {
+          isBusy = true;
+          statusText = 'прошло';
+        } else if (selectedMaster) {
+          isBusy = !slot.masters[selectedMaster]?.free;
+          statusText = isBusy ? 'занято' : 'свободно';
+        } else {
+          isBusy = slot.allBusy;
+          const free = slot.freeCount || 0;
+          statusText = isBusy ? 'всё занято' : `свободно (${free})`;
+        }
+        const isActive = selectedTime === slot.time;
+        html += `<div class="slot ${isBusy ? 'busy' : ''} ${isPast ? 'past-slot' : ''} ${isActive ? 'active' : ''}"
+                      onclick="${isBusy ? '' : `pickTime('${slot.time}')`}">
+                   ${slot.time}
+                   <div class="slot-status">${statusText}</div>
+                 </div>`;
+      });
+
+      html += '</div>';
+
+      // Step 4: Contact info
+      html += `
+        <div class="step-label"><span class="num">4</span> Ваши данные</div>
+        <div class="book-form">
+          <div class="form-row">
+            <input type="text" id="bookName" placeholder="Ваше имя" value="${isLoggedIn ? currentUser.name : ''}">
+            <input type="tel" id="bookPhone" placeholder="Телефон" value="${isLoggedIn ? currentUser.phone : ''}">
+          </div>`;
+
+      // Summary
+      if (selectedService && selectedTime) {
+        const svc = SERVICES_LIST.find(s => s.id === selectedService);
+        const finalPrice = discountPct ? Math.round(svc.price * (1 - discountPct / 100)) : svc.price;
+        html += `
+          <div class="book-summary">
+            📋 <strong>${svc.name}</strong> · ${formatDateRu(selectedDate)} в ${selectedTime}<br>
+            👤 Барбер: <strong>${selectedMaster || 'любой свободный'}</strong><br>
+            💰 Стоимость: <strong>${finalPrice}₽</strong>${discountPct ? ' <span style="color:#4ade80">(скидка ' + discountPct + '%)</span>' : ''}
+          </div>`;
+      }
+
+      html += `
+          <button class="book-btn" onclick="submitBooking()" ${!selectedService || !selectedTime ? 'disabled' : ''}>
+            📅 Записаться
+          </button>
+        </div>`;
+
+      content.innerHTML = html;
+    }
+
+    function pickService(id) {
+      selectedService = id;
+      if (currentSlots) renderBookingForm(currentSlots);
+    }
+
+    function pickMaster(name) {
+      selectedMaster = name;
+      selectedTime = null;
+      if (currentSlots) renderBookingForm(currentSlots);
+    }
+
+    function pickTime(time) {
+      selectedTime = time;
+      if (currentSlots) renderBookingForm(currentSlots);
+    }
+
+    async function submitBooking() {
+      const name = document.getElementById('bookName').value.trim();
+      const phone = document.getElementById('bookPhone').value.trim();
+
+      if (!name) return alert('Укажите имя');
+      if (!phone) return alert('Укажите телефон');
+      if (!selectedService) return alert('Выберите услугу');
+      if (!selectedTime) return alert('Выберите время');
+
+      const svc = SERVICES_LIST.find(s => s.id === selectedService);
+
+      const btn = document.querySelector('.book-btn');
+      btn.disabled = true;
+      btn.textContent = 'Записываем...';
+
+      try {
+        const hdrs = { 'Content-Type': 'application/json' };
+        if (token) hdrs['Authorization'] = 'Bearer ' + token;
+
+        const res = await fetch('/api/book', {
+          method: 'POST',
+          headers: hdrs,
+          body: JSON.stringify({
+            name,
+            phone,
+            service: svc.name,
+            date: selectedDate,
+            time: selectedTime,
+            master: selectedMaster || 'любой свободный',
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'Ошибка при записи');
+          btn.disabled = false;
+          btn.innerHTML = '📅 Записаться';
+          return;
+        }
+
+        // Show success
+        const isLoggedIn = !!currentUser;
+        const discountPct = (isLoggedIn && currentUser.role === 'client') ? 10 : 0;
+        const finalPrice = discountPct ? Math.round(svc.price * (1 - discountPct / 100)) : svc.price;
+
+        const content = document.getElementById('slotsContent');
+        content.innerHTML = `
+          <div class="book-success">
+            <div class="check">✅</div>
+            <h3>Вы записаны!</h3>
+            <p>
+              <strong>${svc.name}</strong><br>
+              ${formatDateRu(selectedDate)} в ${selectedTime}<br>
+              Барбер: ${selectedMaster || 'любой свободный'}<br>
+              Стоимость: ${finalPrice}₽${discountPct ? ' (скидка ' + discountPct + '%)' : ''}<br><br>
+              Ждём вас в The Lion's Den Barbershop! 🦁
+            </p>
+            <button class="btn-new" onclick="resetBooking()">Новая запись</button>
+          </div>`;
+      } catch (e) {
+        alert('Ошибка сети. Попробуйте позже.');
+        btn.disabled = false;
+        btn.innerHTML = '📅 Записаться';
+      }
+    }
+
+    function resetBooking() {
+      selectedService = null;
+      selectedMaster = null;
+      selectedTime = null;
+      if (selectedDate) selectDate(selectedDate);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5d76e"/>
+      <stop offset="40%" style="stop-color:#e8c84a"/>
+      <stop offset="100%" style="stop-color:#b8860b"/>
+    </linearGradient>
+    <linearGradient id="goldLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffe066"/>
+      <stop offset="100%" style="stop-color:#e8c84a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Mane - simplified bold strokes -->
+  <g fill="url(#gold)">
+    <!-- Top mane -->
+    <path d="M36 18 C30 12 22 14 18 10 C24 18 22 26 20 32
+             C14 26 8 24 4 22 C10 28 12 36 14 44"/>
+    <path d="M84 18 C90 12 98 14 102 10 C96 18 98 26 100 32
+             C106 26 112 24 116 22 C110 28 108 36 106 44"/>
+    <!-- Center top tuft -->
+    <path d="M44 14 C50 6 56 4 60 2 C64 4 70 6 76 14
+             C70 10 66 12 60 14 C54 12 50 10 44 14Z"/>
+    <!-- Side mane -->
+    <path d="M14 44 C8 52 6 62 8 72 C2 64 -2 58 -4 54
+             C2 66 4 76 10 84"/>
+    <path d="M106 44 C112 52 114 62 112 72 C118 64 122 58 124 54
+             C118 66 116 76 110 84"/>
+    <!-- Bottom mane -->
+    <path d="M10 84 C18 92 28 98 40 100 C34 104 30 108 28 112
+             C36 106 46 104 52 102 C48 106 46 110 48 114
+             C54 108 58 104 60 102
+             C62 104 66 108 72 114 C74 110 72 106 68 102
+             C74 104 84 106 92 112 C90 108 86 104 80 100
+             C92 98 102 92 110 84"/>
+  </g>
+
+  <!-- Inner mane highlight -->
+  <g fill="url(#goldLight)" opacity="0.5">
+    <path d="M38 20 C32 16 26 18 22 16 C28 22 26 28 24 34
+             C20 28 16 26 12 26 C18 32 20 38 22 44"/>
+    <path d="M82 20 C88 16 94 18 98 16 C92 22 94 28 96 34
+             C100 28 104 26 108 26 C102 32 100 38 98 44"/>
+  </g>
+
+  <!-- Face background -->
+  <ellipse cx="60" cy="58" rx="32" ry="36" fill="#0d0b08"/>
+
+  <!-- Face gold border -->
+  <ellipse cx="60" cy="57" rx="29" ry="33" fill="url(#gold)"/>
+
+  <!-- Face dark center -->
+  <ellipse cx="60" cy="58" rx="24" ry="28" fill="#0d0b08"/>
+
+  <!-- Forehead mark -->
+  <path d="M48 38 Q60 32 72 38 Q66 42 60 41 Q54 42 48 38Z" fill="url(#goldLight)" opacity="0.4"/>
+
+  <!-- Eyes -->
+  <path d="M42 52 Q50 46 58 52 Q50 57 42 52Z" fill="url(#gold)"/>
+  <circle cx="50" cy="52" r="2.5" fill="#0d0b08"/>
+  <circle cx="51" cy="51" r="0.8" fill="#ffe066"/>
+
+  <path d="M62 52 Q70 46 78 52 Q70 57 62 52Z" fill="url(#gold)"/>
+  <circle cx="70" cy="52" r="2.5" fill="#0d0b08"/>
+  <circle cx="71" cy="51" r="0.8" fill="#ffe066"/>
+
+  <!-- Brows -->
+  <path d="M40 47 Q50 41 58 46" stroke="url(#gold)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M62 46 Q70 41 80 47" stroke="url(#gold)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Nose -->
+  <path d="M56 60 L60 68 L64 60" fill="url(#gold)" opacity="0.9"/>
+  <path d="M57 60 L60 66 L63 60" fill="#0d0b08"/>
+
+  <!-- Mouth line -->
+  <path d="M60 68 L60 72" stroke="url(#gold)" stroke-width="2" fill="none"/>
+
+  <!-- Mouth -->
+  <path d="M50 76 Q54 80 60 77 Q66 80 70 76" stroke="url(#gold)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Chin -->
+  <path d="M52 80 Q60 90 68 80" stroke="url(#gold)" stroke-width="2.5" fill="none"/>
+</svg>

@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ru" style="background:#0a0a14">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>Админ-панель | The Lion's Den Barbershop</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo/logo-main.svg">
+  <style>
+    html { background: #0a0a14; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --gold: #c8a85c; --gold-dark: #b8963f; --dark: #1a1a2e; --dark-light: #16213e; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; min-height: 100vh; }
+
+    .header { background: var(--dark); color: #fff; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+    .header-left { display: flex; align-items: center; gap: 1rem; }
+    .header-left a { color: #fff; text-decoration: none; display: flex; align-items: center; gap: 0.75rem; }
+    .logo-img { height: 36px; width: auto; }
+    .admin-badge { background: var(--gold); color: var(--dark); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+    .owner-badge { background: #f59e0b; color: #fff; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+    .header-right { display: flex; align-items: center; gap: 1rem; }
+    .user-name { font-size: 0.85rem; color: #ccc; }
+    .btn-logout { background: none; border: 1px solid #555; color: #ccc; padding: 0.4rem 1rem; border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
+    .btn-logout:hover { border-color: #f66; color: #f66; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: #fff; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-align: center; }
+    .stat-card .num { font-size: 1.5rem; font-weight: 800; color: var(--dark); }
+    .stat-card .gold { color: var(--gold); }
+    .stat-card .label { font-size: 0.65rem; color: #999; margin-top: 0.25rem; }
+
+    .tabs { display: flex; gap: 0.4rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .tab { padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer; background: #fff; color: #666; border: 1px solid #eee; transition: all 0.2s; white-space: nowrap; }
+    .tab.active { background: var(--gold); color: var(--dark); border-color: var(--gold); }
+    .tab:hover { border-color: var(--gold); }
+    .tab.owner-only { display: none; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    th { background: var(--dark); color: #fff; padding: 0.6rem; text-align: left; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    td { padding: 0.6rem; border-bottom: 1px solid #f0f0f0; font-size: 0.78rem; color: #444; }
+    tr:hover td { background: #fafafa; }
+
+    .btn-sm { padding: 0.3rem 0.6rem; border: none; border-radius: 6px; font-size: 0.68rem; cursor: pointer; font-weight: 500; }
+    .btn-delete { background: #fee; color: #c00; }
+    .btn-delete:hover { background: #fcc; }
+    .btn-edit { background: #e8f4fd; color: #0369a1; margin-right: 0.2rem; }
+    .btn-edit:hover { background: #bae6fd; }
+    .btn-add { background: var(--gold); color: var(--dark); border: none; padding: 0.5rem 1.2rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .btn-add:hover { background: var(--gold-dark); }
+    .btn-export { background: #d1fae5; color: #065f46; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; margin-left: 0.5rem; }
+
+    .badge { padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.6rem; font-weight: 600; white-space: nowrap; }
+    .badge-owner { background: #fef3c7; color: #92400e; }
+    .badge-admin { background: #fef3c7; color: #92400e; }
+    .badge-client { background: #dbeafe; color: #1e40af; }
+    .badge-barber { background: #e0e7ff; color: #3730a3; }
+    .badge-active { background: #d1fae5; color: #065f46; }
+    .badge-inactive { background: #fee2e2; color: #991b1b; }
+    .badge-scheduled { background: #dbeafe; color: #1e40af; }
+    .badge-completed { background: #d1fae5; color: #065f46; }
+    .badge-cancelled { background: #fee2e2; color: #991b1b; }
+    .badge-no_show { background: #fef3c7; color: #92400e; }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-confirmed { background: #d1fae5; color: #065f46; }
+
+    .empty { text-align: center; padding: 3rem; color: #999; font-size: 0.9rem; }
+
+    .filter-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+    .filter-row input, .filter-row select { padding: 0.45rem 0.7rem; border: 2px solid #eee; border-radius: 8px; font-size: 0.8rem; outline: none; }
+    .filter-row input:focus, .filter-row select:focus { border-color: var(--gold); }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: #fff; border-radius: 16px; padding: 2rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .modal h3 { margin-bottom: 1.5rem; color: var(--dark); }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.78rem; font-weight: 600; color: #666; margin-bottom: 0.3rem; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.55rem 0.8rem; border: 2px solid #eee; border-radius: 8px; font-size: 0.85rem; outline: none; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--gold); }
+    .form-group textarea { resize: vertical; min-height: 60px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .modal-btns { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+    .modal-btns .btn-save { background: var(--gold); color: var(--dark); border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .modal-btns .btn-cancel { background: #f5f5f5; color: #666; border: none; padding: 0.6rem 1.5rem; border-radius: 8px; cursor: pointer; }
+
+    .msg { padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem; display: none; }
+    .msg-ok { background: #d1fae5; color: #065f46; }
+    .msg-err { background: #fee2e2; color: #991b1b; }
+
+    @media (max-width: 768px) {
+      table { font-size: 0.7rem; }
+      th, td { padding: 0.4rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .tabs { gap: 0.3rem; }
+      .tab { font-size: 0.72rem; padding: 0.4rem 0.7rem; }
+    }
+  </style>
+</head>
+<body style="background:#0a0a14;color:#e0e0e0">
+  <header class="header">
+    <div class="header-left">
+      <a href="/" style="color:#e8c84a;font-weight:700;font-size:1rem;letter-spacing:2px;text-decoration:none">THE LION'S DEN</a>
+      <span class="admin-badge" id="roleBadge">АДМИН</span>
+    </div>
+    <div class="header-right">
+      <span class="user-name" id="userName"></span>
+      <button class="btn-logout" onclick="logout()">Выйти</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="stats-row">
+      <div class="stat-card"><div class="num" id="statBookings">—</div><div class="label">Записей</div></div>
+      <div class="stat-card"><div class="num" id="statToday">—</div><div class="label">Сегодня</div></div>
+      <div class="stat-card"><div class="num gold" id="statRevenue">—</div><div class="label">Выручка</div></div>
+      <div class="stat-card"><div class="num" id="statBarbers">—</div><div class="label">Барберов</div></div>
+      <div class="stat-card"><div class="num" id="statUsers">—</div><div class="label">Клиентов</div></div>
+    </div>
+
+    <div class="tabs" id="tabsContainer">
+      <div class="tab active" data-panel="bookings">📋 Записи</div>
+      <div class="tab" data-panel="barbers">💈 Барберы</div>
+      <div class="tab" data-panel="services">🛠️ Услуги</div>
+      <div class="tab" data-panel="users">👥 Пользователи</div>
+      <div class="tab" data-panel="analytics">📊 Аналитика</div>
+      <div class="tab" data-panel="audit">📝 Аудит</div>
+      <div class="tab" data-panel="promo">🎟️ Промокоды</div>
+      <div class="tab" data-panel="blacklist">🚫 Чёрный список</div>
+      <div class="tab owner-only" data-panel="admins">👑 Админы</div>
+      <div class="tab owner-only" data-panel="settings">⚙️ Настройки</div>
+      <div class="tab" data-panel="profile">👤 Профиль</div>
+    </div>
+
+    <!-- ═══ BOOKINGS ═══ -->
+    <div class="panel active" id="bookingsPanel">
+      <div class="filter-row">
+        <input type="date" id="bkFilterDate" onchange="loadBookings()">
+        <select id="bkFilterStatus" onchange="loadBookings()">
+          <option value="">Все статусы</option>
+          <option value="scheduled">Запланировано</option>
+          <option value="completed">Выполнено</option>
+          <option value="cancelled">Отменено</option>
+          <option value="no_show">Неявка</option>
+        </select>
+        <button class="btn-export" onclick="exportBookings()">📥 CSV</button>
+      </div>
+      <table><thead><tr><th>Клиент</th><th>Телефон</th><th>Услуга</th><th>Дата</th><th>Время</th><th>Барбер</th><th>Цена</th><th>Статус</th><th>Источник</th><th></th></tr></thead>
+      <tbody id="bookingsBody"></tbody></table>
+      <div class="empty" id="bookingsEmpty" style="display:none">Записей нет</div>
+    </div>
+
+    <!-- ═══ BARBERS ═══ -->
+    <div class="panel" id="barbersPanel">
+      <div style="margin-bottom:1rem"><button class="btn-add" onclick="openBarberModal()">+ Добавить барбера</button></div>
+      <table><thead><tr><th>Имя</th><th>Описание</th><th>Опыт</th><th>Telegram</th><th>Статус</th><th></th></tr></thead>
+      <tbody id="barbersBody"></tbody></table>
+    </div>
+
+    <!-- ═══ SERVICES ═══ -->
+    <div class="panel" id="servicesPanel">
+      <div style="margin-bottom:1rem"><button class="btn-add" onclick="openServiceModal()">+ Добавить услугу</button></div>
+      <table><thead><tr><th>Название</th><th>Цена</th><th>Длительность</th><th>Иконка</th><th>Статус</th><th></th></tr></thead>
+      <tbody id="servicesBody"></tbody></table>
+    </div>
+
+    <!-- ═══ USERS ═══ -->
+    <div class="panel" id="usersPanel">
+      <table><thead><tr><th>Имя</th><th>Телефон</th><th>Email</th><th>Роль</th><th>Статус</th><th>Последний вход</th><th></th></tr></thead>
+      <tbody id="usersBody"></tbody></table>
+    </div>
+
+    <!-- ═══ ANALYTICS ═══ -->
+    <div class="panel" id="analyticsPanel">
+      <div class="filter-row">
+        <input type="date" id="analFrom"> <span style="color:#999">—</span> <input type="date" id="analTo">
+        <button class="btn-add" style="padding:0.45rem 1rem;font-size:0.8rem" onclick="loadAnalytics()">Обновить</button>
+        <button class="btn-export" onclick="exportAnalytics()">📥 CSV</button>
+      </div>
+      <div class="stats-row" id="analStatsRow">
+        <div class="stat-card"><div class="num gold" id="analRevenue">—</div><div class="label">Выручка</div></div>
+        <div class="stat-card"><div class="num" id="analBookings">—</div><div class="label">Записей</div></div>
+        <div class="stat-card"><div class="num" id="analAvg">—</div><div class="label">Средний чек</div></div>
+        <div class="stat-card"><div class="num" id="analDiscount">—</div><div class="label">Скидки</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1rem">
+        <div>
+          <h4 style="color:var(--dark);margin-bottom:0.75rem">По барберам</h4>
+          <div id="analByBarber"></div>
+        </div>
+        <div>
+          <h4 style="color:var(--dark);margin-bottom:0.75rem">Топ услуг</h4>
+          <div id="analTopServices"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ AUDIT ═══ -->
+    <div class="panel" id="auditPanel">
+      <div class="filter-row">
+        <input type="date" id="auditFrom" onchange="loadAudit()">
+        <input type="date" id="auditTo" onchange="loadAudit()">
+        <button class="btn-export" onclick="exportAudit()">📥 CSV</button>
+      </div>
+      <table><thead><tr><th>Дата</th><th>Действие</th><th>Пользователь</th><th>Тип</th><th>ID сущности</th><th>IP</th></tr></thead>
+      <tbody id="auditBody"></tbody></table>
+    </div>
+
+    <!-- ═══ PROMO ═══ -->
+    <div class="panel" id="promoPanel">
+      <div style="margin-bottom:1rem"><button class="btn-add" onclick="openPromoModal()">+ Создать промокод</button></div>
+      <table><thead><tr><th>Код</th><th>Скидка</th><th>Использовано</th><th>Лимит</th><th>Истекает</th><th>Статус</th><th></th></tr></thead>
+      <tbody id="promoBody"></tbody></table>
+    </div>
+
+    <!-- ═══ BLACKLIST ═══ -->
+    <div class="panel" id="blacklistPanel">
+      <div style="margin-bottom:1rem"><button class="btn-add" onclick="openBlacklistModal()">+ Добавить в ЧС</button></div>
+      <table><thead><tr><th>Телефон</th><th>Причина</th><th>Дата</th><th></th></tr></thead>
+      <tbody id="blacklistBody"></tbody></table>
+    </div>
+
+    <!-- ═══ ADMINS (owner only) ═══ -->
+    <div class="panel" id="adminsPanel">
+      <div style="margin-bottom:1rem"><button class="btn-add" onclick="openAdminModal()">+ Создать админа</button></div>
+      <div class="msg msg-ok" id="adminOk"></div>
+      <table><thead><tr><th>Имя</th><th>Телефон</th><th>Email</th><th>Роль</th><th></th></tr></thead>
+      <tbody id="adminsBody"></tbody></table>
+    </div>
+
+    <!-- ═══ SETTINGS (owner only) ═══ -->
+    <div class="panel" id="settingsPanel">
+      <div style="background:#fff;border-radius:12px;padding:2rem;max-width:600px;box-shadow:0 2px 8px rgba(0,0,0,0.04)">
+        <h3 style="margin-bottom:1.5rem;color:var(--dark)">⚙️ Настройки</h3>
+        <div class="msg msg-ok" id="settingsOk"></div>
+        <div class="msg msg-err" id="settingsErr"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Макс. админов</label><input type="number" id="sMaxAdmins" min="1" max="10"></div>
+          <div class="form-group"><label>Макс. владельцев</label><input type="number" id="sMaxOwners" min="1" max="5"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Начало рабочего дня</label><input type="number" id="sWorkStart" min="0" max="23"></div>
+          <div class="form-group"><label>Конец рабочего дня</label><input type="number" id="sWorkEnd" min="1" max="24"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Мин. минут до записи</label><input type="number" id="sLeadMinutes" min="0"></div>
+          <div class="form-group"><label>Скидка регистрации (%)</label><input type="number" id="sDiscount" min="0" max="50"></div>
+        </div>
+        <div class="form-group"><label>Название</label><input type="text" id="sShopName"></div>
+        <div class="form-group"><label>Адрес</label><input type="text" id="sShopAddress"></div>
+        <div class="form-group"><label>Телефон</label><input type="text" id="sShopPhone"></div>
+        <button class="btn-add" onclick="saveSettings()">Сохранить настройки</button>
+
+        <hr style="margin:2rem 0;border:1px solid #eee">
+        <h3 style="margin-bottom:1rem;color:var(--dark)">📅 Закрытые дни салона</h3>
+        <p style="color:#888;font-size:0.85rem;margin-bottom:1rem">Укажите даты, когда салон не работает (праздники, ремонт и т.д.).</p>
+        <div style="display:flex;gap:0.75rem;align-items:flex-end;margin-bottom:1rem;flex-wrap:wrap">
+          <div class="form-group" style="margin:0;flex:1;min-width:180px">
+            <label>Дата</label>
+            <input type="date" id="holidayDate">
+          </div>
+          <button class="btn-add" onclick="addHoliday()" style="white-space:nowrap">+ Добавить</button>
+        </div>
+        <div id="holidaysList"></div>
+      </div>
+    </div>
+    <!-- ═══ PROFILE ═══ -->
+    <div class="panel" id="profilePanel">
+      <div style="max-width:500px">
+        <h3 style="margin-bottom:1.5rem;color:var(--dark)">👤 Мой профиль</h3>
+        <div class="msg msg-ok" id="profileOk"></div>
+        <div class="msg msg-err" id="profileErr"></div>
+        <div class="form-group"><label>Имя</label><input type="text" id="profName"></div>
+        <div class="form-group"><label>Телефон</label><input type="tel" id="profPhone"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="profEmail" placeholder="your@email.com"></div>
+        <button class="btn-add" onclick="saveProfile()">Сохранить</button>
+
+        <hr style="margin:2rem 0;border:1px solid #eee">
+        <h4 style="margin-bottom:1rem;color:var(--dark)">🔒 Сменить пароль</h4>
+        <div class="msg msg-ok" id="pwOk"></div>
+        <div class="msg msg-err" id="pwErr"></div>
+        <div class="form-group"><label>Текущий пароль</label><input type="password" id="profOldPw"></div>
+        <div class="form-group"><label>Новый пароль</label><input type="password" id="profNewPw" placeholder="Минимум 4 символа"></div>
+        <button class="btn-add" onclick="changePassword()">Сменить пароль</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODALS ═══ -->
+  <div class="modal-overlay" id="barberModal">
+    <div class="modal">
+      <h3 id="barberModalTitle">Добавить барбера</h3>
+      <input type="hidden" id="barberEditId">
+      <div class="form-row">
+        <div class="form-group"><label>Имя</label><input type="text" id="bName"></div>
+        <div class="form-group"><label>Опыт</label><input type="text" id="bExperience" placeholder="5 лет"></div>
+      </div>
+      <div class="form-group"><label>Описание</label><textarea id="bBio"></textarea></div>
+      <div class="form-group"><label>Telegram Chat ID</label><input type="text" id="bTelegram"></div>
+      <div class="modal-btns">
+        <button class="btn-save" onclick="saveBarber()">Сохранить</button>
+        <button class="btn-cancel" onclick="closeModal('barberModal')">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="serviceModal">
+    <div class="modal">
+      <h3 id="serviceModalTitle">Добавить услугу</h3>
+      <input type="hidden" id="serviceEditId">
+      <div class="form-group"><label>Название</label><input type="text" id="svcName"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Цена (₽)</label><input type="number" id="svcPrice" min="0"></div>
+        <div class="form-group"><label>Длительность (мин)</label><input type="number" id="svcDuration" min="10"></div>
+      </div>
+      <div class="form-group"><label>Иконка (emoji)</label><input type="text" id="svcIcon" maxlength="4"></div>
+      <div class="modal-btns">
+        <button class="btn-save" onclick="saveService()">Сохранить</button>
+        <button class="btn-cancel" onclick="closeModal('serviceModal')">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="promoModal">
+    <div class="modal">
+      <h3>Создать промокод</h3>
+      <div class="form-row">
+        <div class="form-group"><label>Код</label><input type="text" id="promoCode" placeholder="SALE20" style="text-transform:uppercase"></div>
+        <div class="form-group"><label>Скидка (%)</label><input type="number" id="promoDiscount" min="1" max="50"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Макс. использований</label><input type="number" id="promoMaxUses" min="0" placeholder="0 = безлимит"></div>
+        <div class="form-group"><label>Истекает</label><input type="date" id="promoExpires"></div>
+      </div>
+      <div class="form-group"><label>Описание</label><input type="text" id="promoDesc"></div>
+      <div class="modal-btns">
+        <button class="btn-save" onclick="savePromo()">Создать</button>
+        <button class="btn-cancel" onclick="closeModal('promoModal')">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="blacklistModal">
+    <div class="modal">
+      <h3>Добавить в чёрный список</h3>
+      <div class="form-group"><label>Телефон</label><input type="tel" id="blPhone" placeholder="+7..."></div>
+      <div class="form-group"><label>Причина</label><input type="text" id="blReason"></div>
+      <div class="modal-btns">
+        <button class="btn-save" onclick="saveBlacklist()">Добавить</button>
+        <button class="btn-cancel" onclick="closeModal('blacklistModal')">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal">
+      <h3>Создать администратора</h3>
+      <div class="form-group"><label>Имя</label><input type="text" id="newAdminName"></div>
+      <div class="form-group"><label>Телефон</label><input type="tel" id="newAdminPhone"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="newAdminEmail"></div>
+      <div class="form-group"><label>Пароль</label><input type="password" id="newAdminPassword"></div>
+      <div class="form-group"><label>Роль</label>
+        <select id="newAdminRole"><option value="admin">Администратор</option><option value="owner_admin">Владелец</option></select>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-save" onclick="createAdmin()">Создать</button>
+        <button class="btn-cancel" onclick="closeModal('adminModal')">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    let user = null;
+    try { user = JSON.parse(localStorage.getItem('user')); } catch(e) {}
+    if (!token || !user) { window.location.href = '/login.html'; }
+    if (!['admin', 'owner_admin'].includes(user.role)) { window.location.href = '/login.html'; }
+
+    document.getElementById('userName').textContent = user.name;
+    const isOwner = user.role === 'owner_admin';
+    if (isOwner) {
+      document.getElementById('roleBadge').textContent = 'ВЛАДЕЛЕЦ';
+      document.getElementById('roleBadge').className = 'owner-badge';
+      document.querySelectorAll('.tab.owner-only').forEach(t => t.style.display = '');
+    }
+
+    const hdr = () => ({ 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' });
+
+    // Tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.onclick = () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.panel + 'Panel').classList.add('active');
+      };
+    });
+
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+    function fmtDate(d) { if (!d) return '—'; const p = d.split('-'); return p[2]+'.'+p[1]+'.'+p[0]; }
+
+    const statusMap = {
+      scheduled: ['Запл.', 'badge-scheduled'], completed: ['Выполнено', 'badge-completed'],
+      cancelled: ['Отменено', 'badge-cancelled'], no_show: ['Неявка', 'badge-no_show'],
+    };
+    const roleMap = {
+      owner_admin: ['Владелец', 'badge-owner'], admin: ['Админ', 'badge-admin'],
+      barber: ['Барбер', 'badge-barber'], client: ['Клиент', 'badge-client'],
+    };
+
+    // ═══ BOOKINGS ═══
+    async function loadBookings() {
+      try {
+        const date = document.getElementById('bkFilterDate').value;
+        const status = document.getElementById('bkFilterStatus').value;
+        let url = '/api/admin/bookings?';
+        if (date) url += 'date=' + date + '&';
+        if (status) url += 'status=' + status;
+
+        const res = await fetch(url, { headers: hdr() });
+        if (res.status === 401) { window.location.href = '/login.html'; return; }
+        const bookings = await res.json();
+        const today = new Date().toISOString().split('T')[0];
+
+        document.getElementById('statBookings').textContent = bookings.length;
+        document.getElementById('statToday').textContent = bookings.filter(b => b.date === today).length;
+
+        const tb = document.getElementById('bookingsBody');
+        const em = document.getElementById('bookingsEmpty');
+        if (!bookings.length) { em.style.display = 'block'; tb.innerHTML = ''; return; }
+        em.style.display = 'none';
+
+        tb.innerHTML = bookings.map(b => {
+          const st = statusMap[b.status] || ['—', ''];
+          return `<tr>
+            <td><strong>${esc(b.client_name || b.name)}</strong></td>
+            <td>${esc(b.client_phone || b.phone)}</td>
+            <td>${esc(b.service_name || b.service)}</td>
+            <td>${fmtDate(b.date)}</td>
+            <td>${esc(b.time)}</td>
+            <td>${esc(b.barber_name || b.master)}</td>
+            <td>${b.price_final || '—'}₽</td>
+            <td><span class="badge ${st[1]}">${st[0]}</span></td>
+            <td style="font-size:0.65rem;color:#999">${esc(b.source || '—')}</td>
+            <td><button class="btn-sm btn-delete" onclick="deleteBooking('${b.id}')">✕</button></td>
+          </tr>`;
+        }).join('');
+      } catch(e) { console.error(e); }
+    }
+
+    async function deleteBooking(id) {
+      if (!confirm('Отменить запись?')) return;
+      await fetch('/api/admin/bookings/' + id, { method: 'DELETE', headers: hdr() });
+      loadBookings();
+    }
+
+    function exportBookings() {
+      const from = document.getElementById('bkFilterDate').value;
+      let url = '/api/analytics/export?';
+      if (from) url += 'from=' + from + '&to=' + from;
+      window.open(url);
+    }
+
+    // ═══ BARBERS ═══
+    let allBarbers = [];
+    async function loadBarbers() {
+      const res = await fetch('/api/barbers/admin', { headers: hdr() });
+      allBarbers = await res.json();
+      document.getElementById('statBarbers').textContent = allBarbers.filter(b => b.isActive).length;
+
+      document.getElementById('barbersBody').innerHTML = allBarbers.map(b => `
+        <tr style="${b.isActive ? '' : 'opacity:0.4'}">
+          <td><strong>${esc(b.name)}</strong></td>
+          <td style="max-width:180px;font-size:0.72rem;color:#888">${esc(b.bio || '—')}</td>
+          <td>${esc(b.experience || '—')}</td>
+          <td>${b.telegramChatId ? '<span class="badge badge-active">Да</span>' : '—'}</td>
+          <td><span class="badge ${b.isActive ? 'badge-active' : 'badge-inactive'}">${b.isActive ? 'Акт.' : 'Неакт.'}</span></td>
+          <td>
+            <button class="btn-sm btn-edit" onclick="editBarber('${b.id}')">Ред.</button>
+            ${b.isActive ? `<button class="btn-sm btn-delete" onclick="toggleBarber('${b.id}',false)">Деакт.</button>` : `<button class="btn-sm btn-edit" onclick="toggleBarber('${b.id}',true)">Акт.</button>`}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openBarberModal(b) {
+      document.getElementById('barberEditId').value = b ? b.id : '';
+      document.getElementById('barberModalTitle').textContent = b ? 'Редактировать' : 'Добавить барбера';
+      document.getElementById('bName').value = b ? b.name : '';
+      document.getElementById('bBio').value = b ? b.bio : '';
+      document.getElementById('bExperience').value = b ? b.experience : '';
+      document.getElementById('bTelegram').value = b ? (b.telegramChatId || '') : '';
+      openModal('barberModal');
+    }
+    function editBarber(id) { const b = allBarbers.find(x => x.id === id); if (b) openBarberModal(b); }
+    async function saveBarber() {
+      const id = document.getElementById('barberEditId').value;
+      const data = { name: document.getElementById('bName').value.trim(), bio: document.getElementById('bBio').value.trim(), experience: document.getElementById('bExperience').value.trim(), telegramChatId: document.getElementById('bTelegram').value.trim() || null };
+      if (!data.name) return alert('Укажите имя');
+      await fetch(id ? '/api/barbers/admin/' + id : '/api/barbers/admin', { method: id ? 'PATCH' : 'POST', headers: hdr(), body: JSON.stringify(data) });
+      closeModal('barberModal'); loadBarbers();
+    }
+    async function toggleBarber(id, activate) {
+      if (!confirm(activate ? 'Активировать?' : 'Деактивировать?')) return;
+      await fetch('/api/barbers/admin/' + id, { method: 'PATCH', headers: hdr(), body: JSON.stringify({ isActive: activate }) });
+      loadBarbers();
+    }
+
+    // ═══ SERVICES ═══
+    let allServices = [];
+    async function loadServices() {
+      const res = await fetch('/api/services');
+      allServices = await res.json();
+      document.getElementById('servicesBody').innerHTML = allServices.map(s => `
+        <tr style="${s.is_active ? '' : 'opacity:0.4'}">
+          <td><strong>${esc(s.name)}</strong></td>
+          <td>${s.price}₽</td>
+          <td>${s.duration} мин</td>
+          <td>${esc(s.icon || '')}</td>
+          <td><span class="badge ${s.is_active ? 'badge-active' : 'badge-inactive'}">${s.is_active ? 'Акт.' : 'Неакт.'}</span></td>
+          <td>
+            <button class="btn-sm btn-edit" onclick="editService('${s.id}')">Ред.</button>
+            ${s.is_active ? `<button class="btn-sm btn-delete" onclick="deleteService('${s.id}')">Деакт.</button>` : ''}
+          </td>
+        </tr>
+      `).join('');
+    }
+    function openServiceModal(s) {
+      document.getElementById('serviceEditId').value = s ? s.id : '';
+      document.getElementById('serviceModalTitle').textContent = s ? 'Редактировать' : 'Добавить услугу';
+      document.getElementById('svcName').value = s ? s.name : '';
+      document.getElementById('svcPrice').value = s ? s.price : '';
+      document.getElementById('svcDuration').value = s ? s.duration : 60;
+      document.getElementById('svcIcon').value = s ? (s.icon || '') : '';
+      openModal('serviceModal');
+    }
+    function editService(id) { const s = allServices.find(x => x.id === id); if (s) openServiceModal(s); }
+    async function saveService() {
+      const id = document.getElementById('serviceEditId').value;
+      const data = { name: document.getElementById('svcName').value.trim(), price: +document.getElementById('svcPrice').value, duration: +document.getElementById('svcDuration').value, icon: document.getElementById('svcIcon').value.trim() };
+      if (!data.name || !data.price) return alert('Заполните название и цену');
+      await fetch(id ? '/api/services/' + id : '/api/services', { method: id ? 'PATCH' : 'POST', headers: hdr(), body: JSON.stringify(data) });
+      closeModal('serviceModal'); loadServices();
+    }
+    async function deleteService(id) {
+      if (!confirm('Деактивировать услугу?')) return;
+      await fetch('/api/services/' + id, { method: 'DELETE', headers: hdr() });
+      loadServices();
+    }
+
+    // ═══ USERS ═══
+    async function loadUsers() {
+      const res = await fetch('/api/admin/users', { headers: hdr() });
+      const users = await res.json();
+      document.getElementById('statUsers').textContent = users.filter(u => u.role === 'client').length;
+
+      document.getElementById('usersBody').innerHTML = users.map(u => {
+        const rl = roleMap[u.role] || ['—', ''];
+        const isSelf = u.id === user.id;
+        const roleSelect = isOwner && !isSelf ? `
+          <select onchange="changeUserRole('${u.id}', this.value)" style="font-size:0.75rem;padding:0.2rem 0.4rem;border-radius:4px;border:1px solid #ccc">
+            <option value="client" ${u.role==='client'?'selected':''}>Клиент</option>
+            <option value="barber" ${u.role==='barber'?'selected':''}>Барбер</option>
+            <option value="admin" ${u.role==='admin'?'selected':''}>Админ</option>
+            <option value="owner_admin" ${u.role==='owner_admin'?'selected':''}>Владелец</option>
+          </select>` : `<span class="badge ${rl[1]}">${rl[0]}</span>`;
+
+        return `<tr>
+          <td><strong>${esc(u.name)}</strong>${isSelf?' <span style="color:var(--gold);font-size:0.7rem">(вы)</span>':''}</td>
+          <td>${esc(u.phone)}</td>
+          <td style="font-size:0.72rem">${esc(u.email || '—')}</td>
+          <td>${roleSelect}</td>
+          <td><span class="badge ${u.is_active ? 'badge-active' : 'badge-inactive'}">${u.is_active ? 'Акт.' : 'Блок.'}</span></td>
+          <td style="font-size:0.7rem;color:#999">${u.last_login_at ? new Date(u.last_login_at).toLocaleString('ru',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—'}</td>
+          <td style="white-space:nowrap">
+            ${!isSelf ? `<button class="btn-sm btn-edit" onclick="toggleUserBlock('${u.id}',${u.is_active})">${u.is_active ? 'Блок.' : 'Разблок.'}</button>` : ''}
+            <button class="btn-sm btn-edit" onclick="resetUserPassword('${u.id}')">Сброс</button>
+            ${!isSelf ? `<button class="btn-sm" style="background:#fdd;color:#c00;border:1px solid #c00" onclick="deleteUser('${u.id}','${esc(u.name)}')">Удалить</button>` : ''}
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function toggleUserBlock(id, isActive) {
+      if (!confirm(isActive ? 'Заблокировать пользователя?' : 'Разблокировать?')) return;
+      await fetch('/api/admin/users/' + id + '/block', { method: 'PATCH', headers: hdr(), body: JSON.stringify({ is_active: !isActive }) });
+      loadUsers();
+    }
+    async function resetUserPassword(id) {
+      if (!confirm('Сбросить пароль?')) return;
+      const res = await fetch('/api/admin/users/' + id + '/reset-password', { method: 'POST', headers: hdr() });
+      const data = await res.json();
+      if (data.temp_password) alert('Временный пароль: ' + data.temp_password);
+      else alert(data.error || 'Ошибка');
+    }
+    async function deleteUser(id, name) {
+      if (!confirm('УДАЛИТЬ пользователя "' + name + '" из базы? Это действие нельзя отменить!')) return;
+      if (!confirm('Вы уверены? Пользователь будет полностью удалён.')) return;
+      const res = await fetch('/api/admin/users/' + id, { method: 'DELETE', headers: hdr() });
+      const data = await res.json();
+      if (res.ok) { loadUsers(); loadStats(); }
+      else alert(data.error || 'Ошибка удаления');
+    }
+    async function changeUserRole(id, newRole) {
+      if (!confirm('Изменить роль на: ' + newRole + '?')) { loadUsers(); return; }
+      const res = await fetch('/api/admin/users/' + id + '/role', { method: 'PATCH', headers: hdr(), body: JSON.stringify({ role: newRole }) });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || 'Ошибка'); }
+      loadUsers();
+    }
+
+    // ═══ ANALYTICS ═══
+    async function loadAnalytics() {
+      const from = document.getElementById('analFrom').value;
+      const to = document.getElementById('analTo').value;
+      let p = []; if (from) p.push('from='+from); if (to) p.push('to='+to);
+      const qs = p.length ? '?' + p.join('&') : '';
+
+      const [revRes, barberRes, svcRes] = await Promise.all([
+        fetch('/api/analytics/revenue' + qs, { headers: hdr() }),
+        fetch('/api/analytics/by-barber' + qs, { headers: hdr() }),
+        fetch('/api/analytics/top-services' + qs, { headers: hdr() }),
+      ]);
+      const rev = await revRes.json();
+      const byBarber = await barberRes.json();
+      const topSvc = await svcRes.json();
+
+      document.getElementById('analRevenue').textContent = rev.total_revenue?.toLocaleString('ru-RU') + '₽';
+      document.getElementById('analBookings').textContent = rev.total_bookings;
+      document.getElementById('analAvg').textContent = rev.avg_check + '₽';
+      document.getElementById('analDiscount').textContent = (rev.total_discount || 0).toLocaleString('ru-RU') + '₽';
+      document.getElementById('statRevenue').textContent = rev.total_revenue?.toLocaleString('ru-RU') + '₽';
+
+      document.getElementById('analByBarber').innerHTML = byBarber.length ? byBarber.map(b => `
+        <div style="background:#fff;padding:0.65rem 1rem;border-radius:8px;margin-bottom:0.4rem;display:flex;justify-content:space-between">
+          <span><strong>${esc(b.barber)}</strong> · ${b.bookings} зап.</span>
+          <span style="color:var(--gold);font-weight:600">${b.revenue.toLocaleString('ru-RU')}₽</span>
+        </div>
+      `).join('') : '<p style="color:#999">Нет данных</p>';
+
+      document.getElementById('analTopServices').innerHTML = topSvc.length ? topSvc.map((s,i) => `
+        <div style="background:#fff;padding:0.65rem 1rem;border-radius:8px;margin-bottom:0.4rem;display:flex;justify-content:space-between">
+          <span>${i+1}. ${esc(s.service)}</span>
+          <span style="color:var(--gold);font-weight:600">${s.count} раз</span>
+        </div>
+      `).join('') : '<p style="color:#999">Нет данных</p>';
+    }
+
+    function exportAnalytics() {
+      const from = document.getElementById('analFrom').value;
+      const to = document.getElementById('analTo').value;
+      let url = '/api/analytics/export?';
+      if (from) url += 'from=' + from + '&';
+      if (to) url += 'to=' + to;
+      window.open(url);
+    }
+
+    // ═══ AUDIT ═══
+    async function loadAudit() {
+      const from = document.getElementById('auditFrom').value;
+      const to = document.getElementById('auditTo').value;
+      let p = []; if (from) p.push('from='+from); if (to) p.push('to='+to);
+      const res = await fetch('/api/admin/audit-logs?' + p.join('&'), { headers: hdr() });
+      const data = await res.json();
+      document.getElementById('auditBody').innerHTML = (data.items || []).map(l => `
+        <tr>
+          <td style="font-size:0.7rem">${new Date(l.created_at).toLocaleString('ru',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td>
+          <td><strong>${esc(l.action)}</strong></td>
+          <td style="font-size:0.7rem">${esc(l.actor_user_id || '—')}</td>
+          <td>${esc(l.entity_type || '')}</td>
+          <td style="font-size:0.65rem">${esc(l.entity_id || '')}</td>
+          <td style="font-size:0.65rem">${esc(l.ip || '')}</td>
+        </tr>
+      `).join('');
+    }
+    function exportAudit() {
+      const from = document.getElementById('auditFrom').value;
+      const to = document.getElementById('auditTo').value;
+      let url = '/api/admin/audit-logs/export?';
+      if (from) url += 'from=' + from + '&';
+      if (to) url += 'to=' + to;
+      window.open(url);
+    }
+
+    // ═══ PROMO ═══
+    async function loadPromo() {
+      const res = await fetch('/api/promo-codes/admin', { headers: hdr() });
+      const codes = await res.json();
+      document.getElementById('promoBody').innerHTML = codes.map(p => `
+        <tr style="${p.is_active ? '' : 'opacity:0.4'}">
+          <td><strong>${esc(p.code)}</strong></td>
+          <td>${p.discount_percent}%</td>
+          <td>${p.used_count || 0}</td>
+          <td>${p.max_uses || '∞'}</td>
+          <td style="font-size:0.72rem">${p.expires_at ? fmtDate(p.expires_at.split('T')[0]) : '—'}</td>
+          <td><span class="badge ${p.is_active ? 'badge-active' : 'badge-inactive'}">${p.is_active ? 'Акт.' : 'Неакт.'}</span></td>
+          <td>${p.is_active ? `<button class="btn-sm btn-delete" onclick="deletePromo('${p.id}')">Деакт.</button>` : ''}</td>
+        </tr>
+      `).join('');
+    }
+    function openPromoModal() { openModal('promoModal'); }
+    async function savePromo() {
+      const data = {
+        code: document.getElementById('promoCode').value.trim(),
+        discount_percent: +document.getElementById('promoDiscount').value,
+        max_uses: +document.getElementById('promoMaxUses').value || null,
+        expires_at: document.getElementById('promoExpires').value || null,
+        description: document.getElementById('promoDesc').value.trim(),
+      };
+      if (!data.code || !data.discount_percent) return alert('Заполните код и скидку');
+      const res = await fetch('/api/promo-codes/admin', { method: 'POST', headers: hdr(), body: JSON.stringify(data) });
+      if (!res.ok) { const d = await res.json(); alert(d.error); return; }
+      closeModal('promoModal'); loadPromo();
+    }
+    async function deletePromo(id) {
+      if (!confirm('Деактивировать промокод?')) return;
+      await fetch('/api/promo-codes/admin/' + id, { method: 'DELETE', headers: hdr() });
+      loadPromo();
+    }
+
+    // ═══ BLACKLIST ═══
+    async function loadBlacklist() {
+      const res = await fetch('/api/admin/blacklist', { headers: hdr() });
+      const list = await res.json();
+      document.getElementById('blacklistBody').innerHTML = list.filter(b => b.is_active).map(b => `
+        <tr>
+          <td><strong>${esc(b.phone || '—')}</strong></td>
+          <td>${esc(b.reason || '—')}</td>
+          <td style="font-size:0.72rem">${fmtDate(b.created_at?.split('T')[0])}</td>
+          <td><button class="btn-sm btn-delete" onclick="removeBlacklist('${b.id}')">Убрать</button></td>
+        </tr>
+      `).join('');
+    }
+    function openBlacklistModal() { openModal('blacklistModal'); }
+    async function saveBlacklist() {
+      const data = { phone: document.getElementById('blPhone').value.trim(), reason: document.getElementById('blReason').value.trim() };
+      if (!data.phone) return alert('Укажите телефон');
+      const res = await fetch('/api/admin/blacklist', { method: 'POST', headers: hdr(), body: JSON.stringify(data) });
+      if (!res.ok) { const d = await res.json(); alert(d.error); return; }
+      closeModal('blacklistModal'); loadBlacklist();
+    }
+    async function removeBlacklist(id) {
+      if (!confirm('Убрать из чёрного списка?')) return;
+      await fetch('/api/admin/blacklist/' + id, { method: 'DELETE', headers: hdr() });
+      loadBlacklist();
+    }
+
+    // ═══ ADMINS ═══
+    async function loadAdmins() {
+      if (!isOwner) return;
+      const res = await fetch('/api/admin/users', { headers: hdr() });
+      const users = await res.json();
+      const admins = users.filter(u => ['admin', 'owner_admin'].includes(u.role));
+      document.getElementById('adminsBody').innerHTML = admins.map(a => {
+        const rl = roleMap[a.role] || ['—',''];
+        return `<tr>
+          <td><strong>${esc(a.name)}</strong></td>
+          <td>${esc(a.phone)}</td>
+          <td>${esc(a.email || '—')}</td>
+          <td><span class="badge ${rl[1]}">${rl[0]}</span></td>
+          <td>${a.id !== user.id ? `<button class="btn-sm btn-delete" onclick="demoteAdmin('${a.id}')">Понизить</button>` : ''}</td>
+        </tr>`;
+      }).join('');
+    }
+    function openAdminModal() { openModal('adminModal'); }
+    async function createAdmin() {
+      const data = {
+        name: document.getElementById('newAdminName').value.trim(),
+        phone: document.getElementById('newAdminPhone').value.trim(),
+        email: document.getElementById('newAdminEmail').value.trim() || undefined,
+        password: document.getElementById('newAdminPassword').value,
+        role: document.getElementById('newAdminRole').value,
+      };
+      if (!data.name || !data.phone || !data.password) return alert('Заполните все поля');
+      const res = await fetch('/api/admin/create-admin', { method: 'POST', headers: hdr(), body: JSON.stringify(data) });
+      const d = await res.json();
+      if (!res.ok) { alert(d.error); return; }
+      closeModal('adminModal');
+      const ok = document.getElementById('adminOk');
+      ok.textContent = 'Администратор создан: ' + d.name;
+      ok.style.display = 'block';
+      loadAdmins();
+    }
+    async function demoteAdmin(id) {
+      if (!confirm('Понизить до клиента?')) return;
+      await fetch('/api/admin/admins/' + id, { method: 'DELETE', headers: hdr() });
+      loadAdmins();
+    }
+
+    // ═══ SETTINGS ═══
+    async function loadSettings() {
+      if (!isOwner) return;
+      const res = await fetch('/api/admin/settings', { headers: hdr() });
+      const s = await res.json();
+      document.getElementById('sMaxAdmins').value = s.max_admins || 3;
+      document.getElementById('sMaxOwners').value = s.max_owner_admins || 2;
+      document.getElementById('sWorkStart').value = s.work_start_hour || 9;
+      document.getElementById('sWorkEnd').value = s.work_end_hour || 20;
+      document.getElementById('sLeadMinutes').value = s.min_booking_lead_minutes || 0;
+      document.getElementById('sDiscount').value = s.discount_registered_percent || 10;
+      document.getElementById('sShopName').value = s.shop_name || '';
+      document.getElementById('sShopAddress').value = s.shop_address || '';
+      document.getElementById('sShopPhone').value = s.shop_phone || '';
+      currentHolidays = s.holidays || [];
+      renderHolidays();
+    }
+    async function saveSettings() {
+      const data = {
+        max_admins: +document.getElementById('sMaxAdmins').value,
+        max_owner_admins: +document.getElementById('sMaxOwners').value,
+        work_start_hour: +document.getElementById('sWorkStart').value,
+        work_end_hour: +document.getElementById('sWorkEnd').value,
+        min_booking_lead_minutes: +document.getElementById('sLeadMinutes').value,
+        discount_registered_percent: +document.getElementById('sDiscount').value,
+        shop_name: document.getElementById('sShopName').value.trim(),
+        shop_address: document.getElementById('sShopAddress').value.trim(),
+        shop_phone: document.getElementById('sShopPhone').value.trim(),
+      };
+      const res = await fetch('/api/admin/settings', { method: 'PATCH', headers: hdr(), body: JSON.stringify(data) });
+      const ok = document.getElementById('settingsOk');
+      const err = document.getElementById('settingsErr');
+      ok.style.display = 'none'; err.style.display = 'none';
+      if (res.ok) { ok.textContent = 'Настройки сохранены'; ok.style.display = 'block'; }
+      else { const d = await res.json(); err.textContent = d.error; err.style.display = 'block'; }
+    }
+
+    // ── Holidays (closed days) ───────────────
+    let currentHolidays = [];
+
+    function renderHolidays() {
+      const list = document.getElementById('holidaysList');
+      const today = new Date().toISOString().split('T')[0];
+      const upcoming = currentHolidays.filter(d => d >= today).sort();
+      const past = currentHolidays.filter(d => d < today).sort().reverse().slice(0, 5);
+
+      if (upcoming.length === 0 && past.length === 0) {
+        list.innerHTML = '<p style="color:#888;text-align:center;padding:1rem">Закрытых дней нет</p>';
+        return;
+      }
+      let html = '';
+      upcoming.forEach(d => {
+        const dObj = new Date(d + 'T00:00:00');
+        const dayName = dObj.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'long' });
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0.75rem;background:#f8f8f8;border-radius:8px;margin-bottom:0.4rem">';
+        html += '<span>📅 ' + dayName + ' (' + d + ')</span>';
+        html += '<button onclick="removeHoliday(\'' + d + '\')" style="background:#fee;color:#c00;border:none;padding:0.3rem 0.65rem;border-radius:6px;cursor:pointer;font-size:0.8rem">✕</button>';
+        html += '</div>';
+      });
+      if (past.length) {
+        html += '<div style="margin-top:0.75rem;color:#999;font-size:0.8rem">Прошедшие: ' + past.join(', ') + '</div>';
+      }
+      list.innerHTML = html;
+    }
+
+    async function addHoliday() {
+      const date = document.getElementById('holidayDate').value;
+      if (!date) return;
+      if (currentHolidays.includes(date)) return;
+
+      currentHolidays.push(date);
+      const res = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers: hdr(),
+        body: JSON.stringify({ holidays: currentHolidays })
+      });
+      if (res.ok) {
+        document.getElementById('holidayDate').value = '';
+        renderHolidays();
+      }
+    }
+
+    async function removeHoliday(date) {
+      currentHolidays = currentHolidays.filter(d => d !== date);
+      const res = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers: hdr(),
+        body: JSON.stringify({ holidays: currentHolidays })
+      });
+      if (res.ok) renderHolidays();
+    }
+
+    // ═══ PROFILE ═══
+    function loadProfile() {
+      document.getElementById('profName').value = user.name || '';
+      document.getElementById('profPhone').value = user.phone || '';
+      document.getElementById('profEmail').value = user.email || '';
+    }
+    async function saveProfile() {
+      const ok = document.getElementById('profileOk');
+      const err = document.getElementById('profileErr');
+      ok.style.display = 'none'; err.style.display = 'none';
+
+      const data = {
+        name: document.getElementById('profName').value.trim(),
+        phone: document.getElementById('profPhone').value.trim(),
+        email: document.getElementById('profEmail').value.trim() || undefined,
+      };
+      if (!data.name || !data.phone) { err.textContent = 'Имя и телефон обязательны'; err.style.display = 'block'; return; }
+
+      const res = await fetch('/api/me', { method: 'PATCH', headers: hdr(), body: JSON.stringify(data) });
+      const d = await res.json();
+      if (res.ok) {
+        // Update localStorage
+        const u = { ...user, ...data };
+        localStorage.setItem('user', JSON.stringify(u));
+        user = u;
+        document.getElementById('userName').textContent = u.name;
+        ok.textContent = 'Профиль обновлён'; ok.style.display = 'block';
+      } else {
+        err.textContent = d.error || 'Ошибка'; err.style.display = 'block';
+      }
+    }
+    async function changePassword() {
+      const ok = document.getElementById('pwOk');
+      const err = document.getElementById('pwErr');
+      ok.style.display = 'none'; err.style.display = 'none';
+
+      const current_password = document.getElementById('profOldPw').value;
+      const new_password = document.getElementById('profNewPw').value;
+      if (!current_password || !new_password) { err.textContent = 'Заполните оба поля'; err.style.display = 'block'; return; }
+      if (new_password.length < 4) { err.textContent = 'Минимум 4 символа'; err.style.display = 'block'; return; }
+
+      const res = await fetch('/api/me/password', { method: 'PATCH', headers: hdr(), body: JSON.stringify({ current_password, new_password }) });
+      const d = await res.json();
+      if (res.ok) {
+        ok.textContent = 'Пароль изменён'; ok.style.display = 'block';
+        document.getElementById('profOldPw').value = '';
+        document.getElementById('profNewPw').value = '';
+      } else {
+        err.textContent = d.error || 'Ошибка'; err.style.display = 'block';
+      }
+    }
+
+    function logout() {
+      fetch('/api/logout', { method: 'POST', headers: hdr() });
+      localStorage.removeItem('token'); localStorage.removeItem('user');
+      window.location.href = '/login.html';
+    }
+
+    // Init
+    loadBookings(); loadBarbers(); loadServices(); loadUsers();
+    loadAnalytics(); loadAudit(); loadPromo(); loadBlacklist();
+    loadProfile();
+    if (isOwner) { loadAdmins(); loadSettings(); }
+  </script>
+</body>
+</html>

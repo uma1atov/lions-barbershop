@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Environment (contains secrets)
+.env
+
+# Runtime data (created automatically on first start)
+data/users.json
+data/bookings.json
+data/payments.json
+data/password_reset_codes.json
+data/audit_logs.json
+data/clients.json
+data/jobs.json
+
+# Data backups
+data-backup-*/
+
+# Temp files from atomic writes
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Claude
+.claude/
+
+# Logs
+*.log
+npm-debug.log*

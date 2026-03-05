@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" fill="none">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5d76e"/>
+      <stop offset="40%" style="stop-color:#e8c84a"/>
+      <stop offset="100%" style="stop-color:#b8860b"/>
+    </linearGradient>
+    <linearGradient id="goldLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffe066"/>
+      <stop offset="100%" style="stop-color:#e8c84a"/>
+    </linearGradient>
+    <linearGradient id="goldDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#c89b30"/>
+      <stop offset="100%" style="stop-color:#8b6914"/>
+    </linearGradient>
+  </defs>
+
+  <!-- THE LION'S DEN text -->
+  <text x="200" y="42" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="36" font-weight="bold" fill="url(#gold)" letter-spacing="4">THE LION'S DEN</text>
+
+  <!-- Lion head centered -->
+  <g transform="translate(200,240)">
+
+    <!-- Mane outer -->
+    <g fill="url(#gold)">
+      <!-- Top mane -->
+      <path d="M-40-120 C-50-130-62-128-68-132 C-60-124-62-114-64-106
+               C-72-114-80-118-86-120 C-78-112-76-102-74-92
+               C-82-98-88-104-94-106 C-86-96-82-86-78-76"/>
+      <path d="M40-120 C50-130 62-128 68-132 C60-124 62-114 64-106
+               C72-114 80-118 86-120 C78-112 76-102 74-92
+               C82-98 88-104 94-106 C86-96 82-86 78-76"/>
+      <!-- Center top tuft -->
+      <path d="M-26-128 C-18-140-10-144 0-148 C10-144 18-140 26-128
+               C18-132 10-130 0-128 C-10-130-18-132-26-128Z"/>
+
+      <!-- Side mane -->
+      <path d="M-78-76 C-88-66-92-52-94-40 C-100-50-106-58-110-62
+               C-102-48-100-36-96-24 C-104-32-110-38-114-42
+               C-106-30-100-18-92-10"/>
+      <path d="M78-76 C88-66 92-52 94-40 C100-50 106-58 110-62
+               C102-48 100-36 96-24 C104-32 110-38 114-42
+               C106-30 100-18 92-10"/>
+
+      <!-- Bottom mane -->
+      <path d="M-92-10 C-82 0-68 8-54 12 C-62 16-68 22-72 28
+               C-62 22-52 18-42 16 C-48 22-52 28-52 34
+               C-44 28-34 22-24 20 C-30 26-32 32-30 38
+               C-22 30-12 24 0 22
+               C12 24 22 30 30 38 C32 32 30 26 24 20
+               C34 22 44 28 52 34 C52 28 48 22 42 16
+               C52 18 62 22 72 28 C68 22 62 16 54 12
+               C68 8 82 0 92-10"/>
+    </g>
+
+    <!-- Inner mane highlight -->
+    <g fill="url(#goldLight)" opacity="0.5">
+      <path d="M-42-116 C-48-122-56-120-62-122 C-56-116-58-108-60-100
+               C-66-108-72-112-78-112 C-70-104-68-96-64-86"/>
+      <path d="M42-116 C48-122 56-120 62-122 C56-116 58-108 60-100
+               C66-108 72-112 78-112 C70-104 68-96 64-86"/>
+    </g>
+
+    <!-- Face background -->
+    <ellipse cx="0" cy="-10" rx="52" ry="58" fill="#0d0b08"/>
+    <!-- Face gold border -->
+    <ellipse cx="0" cy="-11" rx="48" ry="54" fill="url(#gold)"/>
+    <!-- Face dark center -->
+    <ellipse cx="0" cy="-10" rx="40" ry="46" fill="#0d0b08"/>
+
+    <!-- Forehead mark -->
+    <path d="M-20-42 Q0-52 20-42 Q10-36 0-38 Q-10-36-20-42Z" fill="url(#goldLight)" opacity="0.4"/>
+
+    <!-- Eyes -->
+    <path d="M-28-22 Q-18-30-8-22 Q-18-16-28-22Z" fill="url(#gold)"/>
+    <circle cx="-18" cy="-22" r="3.5" fill="#0d0b08"/>
+    <circle cx="-17" cy="-23" r="1.2" fill="#ffe066"/>
+
+    <path d="M8-22 Q18-30 28-22 Q18-16 8-22Z" fill="url(#gold)"/>
+    <circle cx="18" cy="-22" r="3.5" fill="#0d0b08"/>
+    <circle cx="19" cy="-23" r="1.2" fill="#ffe066"/>
+
+    <!-- Brows -->
+    <path d="M-32-29 Q-18-37-6-30" stroke="url(#gold)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M6-30 Q18-37 32-29" stroke="url(#gold)" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+    <!-- Nose -->
+    <path d="M-7-6 L0 6 L7-6" fill="url(#gold)" opacity="0.9"/>
+    <path d="M-5-6 L0 3 L5-6" fill="#0d0b08"/>
+    <path d="M-2-22 L0-7 L2-22" stroke="url(#gold)" stroke-width="1.2" fill="none" opacity="0.3"/>
+
+    <!-- Mouth -->
+    <path d="M0 6 L0 12" stroke="url(#gold)" stroke-width="2.5" fill="none"/>
+    <path d="M-16 18 Q-10 24 0 20 Q10 24 16 18" stroke="url(#gold)" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+    <!-- Chin -->
+    <path d="M-12 24 Q0 38 12 24" stroke="url(#gold)" stroke-width="3" fill="none"/>
+    <path d="M-8 28 Q0 38 8 28" stroke="url(#goldLight)" stroke-width="1.5" fill="none" opacity="0.4"/>
+
+    <!-- Cheek contours -->
+    <path d="M-34-8 Q-30 4-24 10" stroke="url(#gold)" stroke-width="1.5" fill="none" opacity="0.25"/>
+    <path d="M34-8 Q30 4 24 10" stroke="url(#gold)" stroke-width="1.5" fill="none" opacity="0.25"/>
+
+    <!-- Whisker dots -->
+    <circle cx="-26" cy="-4" r="2" fill="url(#gold)" opacity="0.35"/>
+    <circle cx="-30" cy="0" r="2" fill="url(#gold)" opacity="0.35"/>
+    <circle cx="26" cy="-4" r="2" fill="url(#gold)" opacity="0.35"/>
+    <circle cx="30" cy="0" r="2" fill="url(#gold)" opacity="0.35"/>
+  </g>
+
+  <!-- BARBERSHOP text -->
+  <text x="200" y="450" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="bold" fill="url(#gold)" letter-spacing="6">BARBERSHOP</text>
+</svg>

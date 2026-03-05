@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ru" style="background:#0a0a14">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>Вход | The Lion's Den Barbershop</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/logo/logo-main.svg">
+  <script>
+    // Early redirect — runs BEFORE body renders to prevent flash
+    (function() {
+      try {
+        var t = localStorage.getItem('token');
+        var u = localStorage.getItem('user');
+        if (t && u) {
+          var role = JSON.parse(u).role;
+          var dest = role === 'owner_admin' || role === 'admin' ? '/admin.html'
+                   : role === 'barber' ? '/barber.html' : '/client.html';
+          window.location.replace(dest);
+        }
+      } catch(e) { localStorage.removeItem('token'); localStorage.removeItem('user'); }
+    })();
+  </script>
+  <style>
+    html { background: #0a0a14; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold: #d4a843;
+      --gold-dark: #b8963f;
+      --gold-light: #e8c84a;
+      --dark: #0a0a14;
+      --card: #12121e;
+      --card-border: #1e1e30;
+      --text: #e0e0e0;
+      --text-dim: #888;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    /* Main */
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* Card */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 0.75rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      color: var(--text-dim);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.2s;
+    }
+    .tab.active { color: var(--gold); border-color: var(--gold); }
+    .tab:hover { color: var(--text); }
+
+    /* Forms */
+    .form { display: none; }
+    .form.active { display: block; }
+
+    .field { margin-bottom: 1.25rem; }
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-bottom: 0.4rem;
+      font-weight: 500;
+    }
+    .field input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: var(--dark);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: var(--text);
+      outline: none;
+      transition: border 0.2s;
+    }
+    .field input::placeholder { color: #555; }
+    .field input:focus { border-color: var(--gold); }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--gold);
+      color: var(--dark);
+    }
+    .btn-primary:hover { background: var(--gold-light); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Messages */
+    .error {
+      background: rgba(200,0,0,0.12);
+      color: #f66;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      display: none;
+      border: 1px solid rgba(200,0,0,0.2);
+    }
+    .success {
+      background: rgba(0,180,0,0.1);
+      color: #6d6;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      display: none;
+      border: 1px solid rgba(0,180,0,0.2);
+    }
+
+    /* Badge */
+    .discount-badge {
+      background: linear-gradient(135deg, rgba(212,168,67,0.15), rgba(212,168,67,0.05));
+      border: 1px solid rgba(212,168,67,0.3);
+      color: var(--gold-light);
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Links */
+    .back-link { text-align: center; margin-top: 1.5rem; }
+    .back-link a { color: var(--text-dim); font-size: 0.85rem; text-decoration: none; transition: color 0.2s; }
+    .back-link a:hover { color: var(--gold); }
+    .forgot-link { text-align: right; margin-top: -0.75rem; margin-bottom: 1.25rem; }
+    .forgot-link a { color: var(--gold); font-size: 0.8rem; text-decoration: none; opacity: 0.8; }
+    .forgot-link a:hover { opacity: 1; text-decoration: underline; }
+
+    @media (max-width: 480px) {
+      .card { padding: 2rem 1.25rem; border-radius: 12px; }
+      .header { padding: 1rem 1.25rem; }
+    }
+  </style>
+</head>
+<body style="background:#0a0a14;color:#e0e0e0">
+  <div class="header">
+    <a href="/">THE LION'S DEN</a>
+  </div>
+
+  <div class="main">
+    <div class="card">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('login')">Вход</div>
+        <div class="tab" onclick="switchTab('register')">Регистрация</div>
+      </div>
+
+      <!-- LOGIN -->
+      <div class="form active" id="loginForm">
+        <div class="error" id="loginError"></div>
+        <div class="field">
+          <label>Номер телефона</label>
+          <input type="tel" id="loginPhone" placeholder="+7 (___) ___-__-__">
+        </div>
+        <div class="field">
+          <label>Пароль</label>
+          <input type="password" id="loginPassword" placeholder="Введите пароль">
+        </div>
+        <div class="forgot-link">
+          <a href="/reset-password.html">Забыли пароль?</a>
+        </div>
+        <button class="btn btn-primary" onclick="login()">Войти</button>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="form" id="registerForm">
+        <div class="discount-badge">🎉 Зарегистрируйтесь и получите скидку 10% на все услуги!</div>
+        <div class="error" id="regError"></div>
+        <div class="success" id="regSuccess"></div>
+        <div class="field">
+          <label>Ваше имя</label>
+          <input type="text" id="regName" placeholder="Как к вам обращаться">
+        </div>
+        <div class="field">
+          <label>Номер телефона</label>
+          <input type="tel" id="regPhone" placeholder="+7 (___) ___-__-__">
+        </div>
+        <div class="field">
+          <label>Email (необязательно)</label>
+          <input type="email" id="regEmail" placeholder="your@email.com">
+        </div>
+        <div class="field">
+          <label>Пароль</label>
+          <input type="password" id="regPassword" placeholder="Минимум 4 символа">
+        </div>
+        <button class="btn btn-primary" onclick="register()">Зарегистрироваться</button>
+      </div>
+
+      <div class="back-link"><a href="/">← Вернуться на сайт</a></div>
+    </div>
+  </div>
+
+  <script>
+    function redirectByRole(role) {
+      switch (role) {
+        case 'owner_admin':
+        case 'admin':
+          window.location.href = '/admin.html';
+          break;
+        case 'barber':
+          window.location.href = '/barber.html';
+          break;
+        case 'client':
+        default:
+          window.location.href = '/client.html';
+          break;
+      }
+    }
+
+    // Redirect check moved to <head> script for Safari FOUC prevention
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
+      if (tab === 'login') {
+        document.querySelectorAll('.tab')[0].classList.add('active');
+        document.getElementById('loginForm').classList.add('active');
+      } else {
+        document.querySelectorAll('.tab')[1].classList.add('active');
+        document.getElementById('registerForm').classList.add('active');
+      }
+    }
+
+    async function login() {
+      const phone = document.getElementById('loginPhone').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const err = document.getElementById('loginError');
+      err.style.display = 'none';
+
+      if (!phone || !password) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; return; }
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) { err.textContent = data.error; err.style.display = 'block'; return; }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        redirectByRole(data.user.role);
+      } catch (e) {
+        err.textContent = 'Ошибка соединения'; err.style.display = 'block';
+      }
+    }
+
+    async function register() {
+      const name = document.getElementById('regName').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const err = document.getElementById('regError');
+      const success = document.getElementById('regSuccess');
+      err.style.display = 'none';
+      success.style.display = 'none';
+
+      if (!name || !phone || !password) { err.textContent = 'Заполните все поля'; err.style.display = 'block'; return; }
+      if (password.length < 4) { err.textContent = 'Пароль минимум 4 символа'; err.style.display = 'block'; return; }
+
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, password, email: email || undefined }),
+        });
+        const data = await res.json();
+        if (!res.ok) { err.textContent = data.error; err.style.display = 'block'; return; }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        redirectByRole(data.user.role);
+      } catch (e) {
+        err.textContent = 'Ошибка соединения'; err.style.display = 'block';
+      }
+    }
+
+    document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+    document.getElementById('regPassword').addEventListener('keydown', e => { if (e.key === 'Enter') register(); });
+  </script>
+</body>
+</html>
