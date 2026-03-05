@@ -1,0 +1,32 @@
+services:
+  - type: web
+    runtime: node
+    name: lions-den-barbershop
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 24h
+      - key: BCRYPT_SALT_ROUNDS
+        value: 12
+      - key: OWNER_ADMIN_PHONE
+        sync: false
+      - key: OWNER_ADMIN_PASSWORD
+        sync: false
+      - key: OWNER_ADMIN_NAME
+        sync: false
+      - key: OWNER_ADMIN_EMAIL
+        sync: false
+      - key: MAX_ADMINS
+        value: 3
+      - key: MAX_OWNER_ADMINS
+        value: 2
+    disk:
+      name: barbershop-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
