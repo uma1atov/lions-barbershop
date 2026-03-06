@@ -114,26 +114,45 @@ router.post("/my-bookings/:id/cancel", authenticate, (req, res, next) => {
       return res.status(400).json({ error: "Можно отменить только запланированные записи" });
     }
 
-    // Check if not too late to cancel (e.g., at least 1 hour before)
+    // Calculate time until appointment
     const slotTime = new Date(`${booking.date}T${booking.time}:00`);
     const now = new Date();
-    if (slotTime.getTime() - now.getTime() < 60 * 60 * 1000) {
-      return res.status(400).json({ error: "Нельзя отменить запись менее чем за 1 час" });
+    const minutesBefore = (slotTime.getTime() - now.getTime()) / (60 * 1000);
+
+    // Allow cancellation but track timing for points refund
+    if (minutesBefore < 0) {
+      return res.status(400).json({ error: "Время записи уже прошло" });
     }
 
     bookings[idx].status = "cancelled";
     bookings[idx].updated_at = new Date().toISOString();
     writeJSON(FILES.bookings, bookings);
 
+    // Points refund logic: >= 30 min before → refund, < 30 min → no refund
+    let pointsRefunded = false;
+    if (booking.points_spent && booking.points_spent > 0 && booking.client_user_id) {
+      if (minutesBefore >= 30) {
+        const { refundPoints } = require("../lib/points");
+        pointsRefunded = refundPoints(booking.client_user_id, booking.id);
+      }
+    }
+
     logAudit({
       actorUserId: req.user.id,
       action: "booking.client_cancel",
       entityType: "booking",
       entityId: req.params.id,
+      meta: { minutes_before: Math.round(minutesBefore), points_refunded: pointsRefunded },
       ip: req.ip,
     });
 
-    res.json({ ok: true, message: "Запись отменена" });
+    const message = pointsRefunded
+      ? "Запись отменена. Баллы возвращены."
+      : booking.points_spent > 0 && minutesBefore < 30
+        ? "Запись отменена. Баллы не возвращаются (отмена менее чем за 30 мин)."
+        : "Запись отменена";
+
+    res.json({ ok: true, message, points_refunded: pointsRefunded });
   } catch (err) {
     next(err);
   }

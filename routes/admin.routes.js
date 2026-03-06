@@ -22,6 +22,7 @@ router.get("/users", authenticate, can("users:list"), (req, res) => {
     role: u.role,
     is_active: u.is_active,
     is_blacklisted: u.is_blacklisted || false,
+    points: u.points || 0,
     last_login_at: u.last_login_at,
     created_at: u.created_at || u.createdAt,
   }));
@@ -345,6 +346,9 @@ router.patch("/settings", authenticate, can("settings:manage"), (req, res, next)
       "min_booking_lead_minutes", "work_start_hour", "work_end_hour",
       "day_off", "discount_registered_percent", "booking_slot_step_minutes",
       "shop_name", "shop_address", "shop_phone", "holidays",
+      "points_per_booking", "points_per_review", "points_max_cap",
+      "points_max_spend_per_booking", "points_value_percent",
+      "points_expiration_days", "points_expiration_warning_days",
     ];
 
     const changes = {};
@@ -467,6 +471,56 @@ router.delete("/blacklist/:id", authenticate, can("blacklist:manage"), (req, res
   } catch (err) {
     next(err);
   }
+});
+
+// ═══ POINTS MANAGEMENT ═══════════════════════════
+
+// ─── POST /api/admin/users/:id/points/give ──────
+router.post("/users/:id/points/give", authenticate, can("users:list"), (req, res, next) => {
+  try {
+    const { amount, reason } = req.body;
+    if (!amount || amount < 1) {
+      return res.status(400).json({ error: "Укажите количество баллов (>0)" });
+    }
+    const { adminGivePoints } = require("../lib/points");
+    const result = adminGivePoints(req.params.id, +amount, req.user.id, reason);
+    if (!result) return res.status(404).json({ error: "Пользователь не найден" });
+
+    logAudit({
+      actorUserId: req.user.id,
+      action: "points.admin_give",
+      entityType: "user",
+      entityId: req.params.id,
+      meta: { amount: +amount, reason },
+      ip: req.ip,
+    });
+
+    res.json({ ok: true, ...result });
+  } catch (err) { next(err); }
+});
+
+// ─── POST /api/admin/users/:id/points/take ──────
+router.post("/users/:id/points/take", authenticate, can("users:list"), (req, res, next) => {
+  try {
+    const { amount, reason } = req.body;
+    if (!amount || amount < 1) {
+      return res.status(400).json({ error: "Укажите количество баллов (>0)" });
+    }
+    const { adminTakePoints } = require("../lib/points");
+    const result = adminTakePoints(req.params.id, +amount, req.user.id, reason);
+    if (!result) return res.status(404).json({ error: "Пользователь не найден" });
+
+    logAudit({
+      actorUserId: req.user.id,
+      action: "points.admin_take",
+      entityType: "user",
+      entityId: req.params.id,
+      meta: { amount: +amount, reason },
+      ip: req.ip,
+    });
+
+    res.json({ ok: true, ...result });
+  } catch (err) { next(err); }
 });
 
 module.exports = router;

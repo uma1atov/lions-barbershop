@@ -121,7 +121,7 @@ router.get("/slots", (req, res, next) => {
 // Public (optionalAuth): create booking from calendar
 router.post("/book", optionalAuth, (req, res, next) => {
   try {
-    const { name, phone, service, date, time, master, promo_code } = req.body;
+    const { name, phone, service, date, time, master, promo_code, points_to_spend } = req.body;
 
     if (!name || !phone || !service || !date || !time) {
       return res.status(400).json({ error: "Заполните все обязательные поля" });
@@ -223,7 +223,21 @@ router.post("/book", optionalAuth, (req, res, next) => {
       }
     }
 
-    const totalDiscount = Math.min(discountPercent + promoDiscount, 50); // Cap at 50%
+    // Points discount (only for logged-in clients with points)
+    let pointsDiscountPercent = 0;
+    let pointsActualSpend = 0;
+    if (points_to_spend && points_to_spend > 0 && req.user && req.user.role === "client") {
+      const { getUserPoints } = require("../lib/points");
+      const pointsData = getUserPoints(req.user.id);
+      if (pointsData && pointsData.activePoints > 0) {
+        const maxSpend = settings.points_max_spend_per_booking || 5;
+        const valuePercent = settings.points_value_percent || 10;
+        pointsActualSpend = Math.min(points_to_spend, pointsData.activePoints, maxSpend);
+        pointsDiscountPercent = pointsActualSpend * valuePercent;
+      }
+    }
+
+    const totalDiscount = Math.min(discountPercent + promoDiscount + pointsDiscountPercent, 90); // Cap at 90%
     const priceOriginal = serviceObj ? serviceObj.price : 0;
     const priceFinal = Math.round(priceOriginal * (1 - totalDiscount / 100));
 
@@ -255,6 +269,8 @@ router.post("/book", optionalAuth, (req, res, next) => {
       discount_percent: totalDiscount,
       price_final: priceFinal,
       promo_code: appliedPromo,
+      points_spent: 0,
+      points_discount_percent: pointsDiscountPercent,
       status: "scheduled",
       notes: "",
       created_by: req.user ? req.user.id : null,
@@ -271,12 +287,28 @@ router.post("/book", optionalAuth, (req, res, next) => {
     bookings.push(booking);
     writeJSON(FILES.bookings, bookings);
 
+    // Spend points AFTER booking is saved
+    if (pointsActualSpend > 0 && req.user) {
+      const { spendPoints } = require("../lib/points");
+      const spendResult = spendPoints(req.user.id, pointsActualSpend, booking.id);
+      if (spendResult) {
+        // Update booking with actual points spent
+        const bks = readJSON(FILES.bookings);
+        const bIdx = bks.findIndex((b) => b.id === booking.id);
+        if (bIdx !== -1) {
+          bks[bIdx].points_spent = spendResult.pointsSpent;
+          writeJSON(FILES.bookings, bks);
+          booking.points_spent = spendResult.pointsSpent;
+        }
+      }
+    }
+
     logAudit({
       actorUserId: req.user ? req.user.id : null,
       action: "booking.create",
       entityType: "booking",
       entityId: booking.id,
-      meta: { service: booking.service_name, date, time, master: chosenMaster, source: "calendar" },
+      meta: { service: booking.service_name, date, time, master: chosenMaster, source: "calendar", points_spent: booking.points_spent },
       ip: req.ip,
     });
 
@@ -325,6 +357,7 @@ router.get("/admin/bookings", authenticate, can("appointments:list_all"), (req, 
 // Admin: update booking (status, reschedule, notes)
 router.patch("/admin/bookings/:id", authenticate, can("appointments:list_all"), (req, res, next) => {
   try {
+    const settings = getSettings();
     const bookings = readJSON(FILES.bookings);
     const idx = bookings.findIndex((b) => b.id === req.params.id);
     if (idx === -1) return res.status(404).json({ error: "Запись не найдена" });
@@ -354,6 +387,26 @@ router.patch("/admin/bookings/:id", authenticate, can("appointments:list_all"), 
 
     bookings[idx].updated_at = new Date().toISOString();
     writeJSON(FILES.bookings, bookings);
+
+    // Points logic on status change
+    const booking = bookings[idx];
+    if (changes.status && booking.client_user_id) {
+      if (changes.status === "completed") {
+        // Earn points for completed booking
+        const { earnPoints } = require("../lib/points");
+        const pts = settings.points_per_booking || 1;
+        earnPoints(booking.client_user_id, {
+          type: "booking",
+          amount: pts,
+          booking_id: booking.id,
+        });
+      } else if (changes.status === "cancelled" && booking.points_spent > 0) {
+        // Admin cancel: always refund points
+        const { refundPoints } = require("../lib/points");
+        refundPoints(booking.client_user_id, booking.id);
+      }
+      // no_show: points stay spent (no refund)
+    }
 
     logAudit({
       actorUserId: req.user.id,

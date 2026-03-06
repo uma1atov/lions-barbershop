@@ -171,7 +171,7 @@
 
     <!-- ═══ USERS ═══ -->
     <div class="panel" id="usersPanel">
-      <table><thead><tr><th>Имя</th><th>Телефон</th><th>Email</th><th>Роль</th><th>Статус</th><th>Последний вход</th><th></th></tr></thead>
+      <table><thead><tr><th>Имя</th><th>Телефон</th><th>Email</th><th>Роль</th><th>Баллы</th><th>Статус</th><th>Последний вход</th><th></th></tr></thead>
       <tbody id="usersBody"></tbody></table>
     </div>
 
@@ -261,6 +261,21 @@
         <div class="form-group"><label>Название</label><input type="text" id="sShopName"></div>
         <div class="form-group"><label>Адрес</label><input type="text" id="sShopAddress"></div>
         <div class="form-group"><label>Телефон</label><input type="text" id="sShopPhone"></div>
+        <hr style="margin:2rem 0;border:1px solid #eee">
+        <h3 style="margin-bottom:1rem;color:var(--dark)">⭐ Бонусная программа</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Баллов за стрижку</label><input type="number" id="sPointsPerBooking" min="0" max="10"></div>
+          <div class="form-group"><label>Баллов за отзыв</label><input type="number" id="sPointsPerReview" min="0" max="10"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Макс. баллов (лимит)</label><input type="number" id="sPointsMaxCap" min="1" max="100"></div>
+          <div class="form-group"><label>Макс. потратить за запись</label><input type="number" id="sPointsMaxSpend" min="1" max="50"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>% скидки за 1 балл</label><input type="number" id="sPointsValuePercent" min="1" max="50"></div>
+          <div class="form-group"><label>Срок действия (дней)</label><input type="number" id="sPointsExpDays" min="1" max="365"></div>
+        </div>
+        <div class="form-group"><label>Предупреждение о сгорании за (дней)</label><input type="number" id="sPointsWarnDays" min="1" max="30"></div>
         <button class="btn-add" onclick="saveSettings()">Сохранить настройки</button>
 
         <hr style="margin:2rem 0;border:1px solid #eee">
@@ -604,6 +619,13 @@
           <td>${esc(u.phone)}</td>
           <td style="font-size:0.72rem">${esc(u.email || '—')}</td>
           <td>${roleSelect}</td>
+          <td>
+            <strong>${u.points || 0}</strong>
+            ${u.role === 'client' ? `
+              <button class="btn-sm" style="background:#dfd;color:#060;border:1px solid #090;padding:0.1rem 0.4rem" onclick="givePoints('${u.id}','${esc(u.name)}')">+</button>
+              <button class="btn-sm" style="background:#fdd;color:#c00;border:1px solid #c00;padding:0.1rem 0.4rem" onclick="takePoints('${u.id}','${esc(u.name)}')">−</button>
+            ` : ''}
+          </td>
           <td><span class="badge ${u.is_active ? 'badge-active' : 'badge-inactive'}">${u.is_active ? 'Акт.' : 'Блок.'}</span></td>
           <td style="font-size:0.7rem;color:#999">${u.last_login_at ? new Date(u.last_login_at).toLocaleString('ru',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—'}</td>
           <td style="white-space:nowrap">
@@ -641,6 +663,30 @@
       const data = await res.json();
       if (!res.ok) { alert(data.error || 'Ошибка'); }
       loadUsers();
+    }
+    async function givePoints(userId, userName) {
+      const amount = prompt('Сколько баллов начислить ' + userName + '?');
+      if (!amount || isNaN(amount) || +amount < 1) return;
+      const reason = prompt('Причина (необязательно):') || '';
+      const res = await fetch('/api/admin/users/' + userId + '/points/give', {
+        method: 'POST', headers: hdr(),
+        body: JSON.stringify({ amount: +amount, reason })
+      });
+      const data = await res.json();
+      if (res.ok) { alert('Начислено ' + data.pointsEarned + ' баллов. Всего: ' + data.totalPoints); loadUsers(); }
+      else alert(data.error || 'Ошибка');
+    }
+    async function takePoints(userId, userName) {
+      const amount = prompt('Сколько баллов списать у ' + userName + '?');
+      if (!amount || isNaN(amount) || +amount < 1) return;
+      const reason = prompt('Причина (необязательно):') || '';
+      const res = await fetch('/api/admin/users/' + userId + '/points/take', {
+        method: 'POST', headers: hdr(),
+        body: JSON.stringify({ amount: +amount, reason })
+      });
+      const data = await res.json();
+      if (res.ok) { alert('Списано ' + data.pointsTaken + ' баллов. Осталось: ' + data.totalPoints); loadUsers(); }
+      else alert(data.error || 'Ошибка');
     }
 
     // ═══ ANALYTICS ═══
@@ -835,6 +881,13 @@
       document.getElementById('sShopName').value = s.shop_name || '';
       document.getElementById('sShopAddress').value = s.shop_address || '';
       document.getElementById('sShopPhone').value = s.shop_phone || '';
+      document.getElementById('sPointsPerBooking').value = s.points_per_booking ?? 1;
+      document.getElementById('sPointsPerReview').value = s.points_per_review ?? 1;
+      document.getElementById('sPointsMaxCap').value = s.points_max_cap ?? 10;
+      document.getElementById('sPointsMaxSpend').value = s.points_max_spend_per_booking ?? 5;
+      document.getElementById('sPointsValuePercent').value = s.points_value_percent ?? 10;
+      document.getElementById('sPointsExpDays').value = s.points_expiration_days ?? 45;
+      document.getElementById('sPointsWarnDays').value = s.points_expiration_warning_days ?? 5;
       currentHolidays = s.holidays || [];
       renderHolidays();
     }
@@ -849,6 +902,13 @@
         shop_name: document.getElementById('sShopName').value.trim(),
         shop_address: document.getElementById('sShopAddress').value.trim(),
         shop_phone: document.getElementById('sShopPhone').value.trim(),
+        points_per_booking: +document.getElementById('sPointsPerBooking').value,
+        points_per_review: +document.getElementById('sPointsPerReview').value,
+        points_max_cap: +document.getElementById('sPointsMaxCap').value,
+        points_max_spend_per_booking: +document.getElementById('sPointsMaxSpend').value,
+        points_value_percent: +document.getElementById('sPointsValuePercent').value,
+        points_expiration_days: +document.getElementById('sPointsExpDays').value,
+        points_expiration_warning_days: +document.getElementById('sPointsWarnDays').value,
       };
       const res = await fetch('/api/admin/settings', { method: 'PATCH', headers: hdr(), body: JSON.stringify(data) });
       const ok = document.getElementById('settingsOk');

@@ -36,9 +36,9 @@ app.use(express.static(path.join(__dirname, "public"), {
 }));
 
 // ─── Public shop info (no auth) ─────────────────────
-const { readSettings } = require("./lib/db");
+const { readSettings, getSettings } = require("./lib/db");
 app.get("/api/shop-info", (_req, res) => {
-  const s = readSettings();
+  const s = getSettings();
   res.json({
     shop_name: s.shop_name || "",
     shop_address: s.shop_address || "",
@@ -47,6 +47,12 @@ app.get("/api/shop-info", (_req, res) => {
     holidays: s.holidays || [],
     work_start_hour: s.work_start_hour || 9,
     work_end_hour: s.work_end_hour || 20,
+    // Points config (public, for client UI)
+    points_value_percent: s.points_value_percent || 10,
+    points_max_spend_per_booking: s.points_max_spend_per_booking || 5,
+    points_max_cap: s.points_max_cap || 10,
+    points_per_booking: s.points_per_booking || 1,
+    points_per_review: s.points_per_review || 1,
   });
 });
 
@@ -111,6 +117,13 @@ app.use(errorHandler);
 (async () => {
   // Auto-seed OWNER_ADMIN on first start
   await autoSeed();
+
+  // Points expiration sweep — run every hour
+  const { expirePoints } = require("./lib/points");
+  try { expirePoints(); } catch (e) { /* first run */ }
+  setInterval(() => {
+    try { expirePoints(); } catch (e) { console.error("Points expiration error:", e.message); }
+  }, 60 * 60 * 1000);
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`\n🦁 The Lion's Den Barbershop запущен: http://localhost:${PORT}\n`);

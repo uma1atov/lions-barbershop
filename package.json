@@ -12,12 +12,17 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "keywords": ["barbershop", "booking", "salon"],
+  "keywords": [
+    "barbershop",
+    "booking",
+    "salon"
+  ],
   "author": "The Lion's Den",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",

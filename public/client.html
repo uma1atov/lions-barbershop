@@ -144,10 +144,11 @@
       <div class="points-banner">
         <div>
           <div>Ваши баллы: <span class="points-num" id="pointsNum">0</span></div>
-          <div class="points-info">
+          <div class="points-info" id="pointsInfo">
             +1 балл за стрижку · +1 балл за отзыв<br>
             1 балл = 10% скидка · 5 баллов = 50% скидка
           </div>
+          <div id="expiringWarning" style="display:none;color:#fbbf24;font-size:0.8rem;margin-top:0.3rem"></div>
         </div>
         <div class="points-discount" id="pointsDiscount">Скидка: 0%</div>
       </div>
@@ -414,8 +415,24 @@
         if (!res.ok) return;
         const data = await res.json();
         document.getElementById('pointsNum').textContent = data.points;
-        document.getElementById('statPoints').textContent = data.points;
-        document.getElementById('pointsDiscount').textContent = 'Скидка: ' + data.discount_percent + '%';
+        const statPts = document.getElementById('statPoints');
+        if (statPts) statPts.textContent = data.points;
+
+        const maxDiscount = data.max_discount || 50;
+        document.getElementById('pointsDiscount').textContent = 'Скидка до: ' + maxDiscount + '%';
+
+        // Update info text dynamically
+        const info = document.getElementById('pointsInfo');
+        if (info) info.innerHTML = '+' + (data.points_per_booking || 1) + ' за стрижку · +' + (data.points_per_review || 1) + ' за отзыв · 1 балл = ' + (data.discount_per_point || 10) + '% скидка';
+
+        // Expiration warning
+        const warn = document.getElementById('expiringWarning');
+        if (warn && data.expiring_points > 0 && data.expiring_days !== null) {
+          warn.style.display = 'block';
+          warn.innerHTML = '⚠️ ' + data.expiring_points + ' балл(ов) сгорают через ' + data.expiring_days + ' дн.! Используйте при записи.';
+        } else if (warn) {
+          warn.style.display = 'none';
+        }
       } catch(e) {}
     }
 

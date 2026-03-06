@@ -1,17 +1,14 @@
 /**
  * review.routes.js — Reviews + Loyalty Points System
  *
- * Points rules:
- *   - 1 point per completed booking (auto)
- *   - 1 point per review
- *   - 1 point = 10% discount
- *   - 5 points = 50% discount (max)
- *   - Points are spent when discount is applied
+ * Points rules are configurable via admin settings.
+ * All points logic is centralized in lib/points.js
  */
 const router = require("express").Router();
-const { readJSON, writeJSON, FILES, genId } = require("../lib/db");
+const { readJSON, writeJSON, FILES, genId, getSettings } = require("../lib/db");
 const { authenticate } = require("../middleware/authenticate");
 const { logAudit } = require("../lib/audit");
+const { earnPoints, getUserPoints } = require("../lib/points");
 
 // ─── GET /api/reviews — Public: approved reviews ───
 router.get("/", (_req, res) => {
@@ -84,23 +81,16 @@ router.post("/", authenticate, (req, res) => {
   reviews.push(review);
   writeJSON(FILES.reviews, reviews);
 
-  // Award 1 point for review
-  const users = readJSON(FILES.users);
-  const userIdx = users.findIndex((u) => u.id === req.user.id);
-  if (userIdx !== -1) {
-    if (!users[userIdx].points) users[userIdx].points = 0;
-    if (!users[userIdx].points_history) users[userIdx].points_history = [];
-    users[userIdx].points += 1;
-    users[userIdx].points_history.push({
-      type: "review",
-      amount: 1,
-      review_id: review.id,
-      date: new Date().toISOString(),
-    });
-    writeJSON(FILES.users, users);
-  }
+  // Award points for review (configurable)
+  const settings = getSettings();
+  const pointsAmount = settings.points_per_review || 1;
+  const result = earnPoints(req.user.id, {
+    type: "review",
+    amount: pointsAmount,
+    review_id: review.id,
+  });
 
-  res.json({ ok: true, review, points_earned: 1 });
+  res.json({ ok: true, review, points_earned: result ? result.pointsEarned : 0 });
 });
 
 // ─── GET /api/reviews/my — Client: my reviews ──────
@@ -113,57 +103,33 @@ router.get("/my", authenticate, (req, res) => {
 
 // ─── GET /api/reviews/my-points — Client: points ───
 router.get("/my-points", authenticate, (req, res) => {
-  const users = readJSON(FILES.users);
-  const user = users.find((u) => u.id === req.user.id);
-  if (!user) return res.status(404).json({ error: "Пользователь не найден" });
+  const data = getUserPoints(req.user.id);
+  if (!data) return res.status(404).json({ error: "Пользователь не найден" });
 
-  const points = user.points || 0;
-  const discount_percent = Math.min(points * 10, 50);
-  const history = (user.points_history || []).slice(-20).reverse();
+  const settings = getSettings();
+  const maxSpend = settings.points_max_spend_per_booking || 5;
+  const valuePercent = settings.points_value_percent || 10;
+  const maxDiscount = maxSpend * valuePercent;
 
   res.json({
-    points,
-    discount_percent,
-    max_discount: 50,
-    points_for_max: 5,
-    history,
+    points: data.activePoints,
+    expiring_points: data.expiringPoints,
+    expiring_days: data.expiringDays,
+    discount_per_point: valuePercent,
+    max_spend_per_booking: maxSpend,
+    max_discount: maxDiscount,
+    points_max_cap: settings.points_max_cap || 10,
+    points_per_booking: settings.points_per_booking || 1,
+    points_per_review: settings.points_per_review || 1,
+    history: data.history,
   });
 });
 
-// ─── POST /api/reviews/spend-points — Use points ───
-router.post("/spend-points", authenticate, (req, res) => {
-  const { points_to_spend } = req.body;
-  if (!points_to_spend || points_to_spend < 1) {
-    return res.status(400).json({ error: "Укажите количество баллов" });
-  }
-
-  const users = readJSON(FILES.users);
-  const userIdx = users.findIndex((u) => u.id === req.user.id);
-  if (userIdx === -1) return res.status(404).json({ error: "Пользователь не найден" });
-
-  const user = users[userIdx];
-  const currentPoints = user.points || 0;
-  const spend = Math.min(points_to_spend, currentPoints, 5); // max 5 = 50%
-
-  if (spend < 1) {
-    return res.status(400).json({ error: "Недостаточно баллов" });
-  }
-
-  users[userIdx].points = currentPoints - spend;
-  if (!users[userIdx].points_history) users[userIdx].points_history = [];
-  users[userIdx].points_history.push({
-    type: "spent",
-    amount: -spend,
-    discount_percent: spend * 10,
-    date: new Date().toISOString(),
-  });
-  writeJSON(FILES.users, users);
-
-  res.json({
-    ok: true,
-    points_spent: spend,
-    discount_percent: spend * 10,
-    points_remaining: users[userIdx].points,
+// ─── POST /api/reviews/spend-points — Disabled ──────
+// Points can only be spent during booking now
+router.post("/spend-points", authenticate, (_req, res) => {
+  res.status(400).json({
+    error: "Баллы можно потратить только при создании записи на стрижку",
   });
 });
 

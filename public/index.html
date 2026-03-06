@@ -526,6 +526,7 @@
     }
 
     renderAuth();
+    loadClientPoints();
 
     // === CHAT ===
     const chatWindow = document.getElementById('chatWindow');
@@ -630,9 +631,29 @@
     let selectedMaster = null;
     let selectedTime = null;
     let currentSlots = null;
+    let clientPoints = 0;
+    let clientExpiringPoints = 0;
+    let clientExpiringDays = null;
+    let pointsToSpend = 0;
+    let pointsValuePercent = 10;
+    let maxPointsSpend = 5;
     let shopDayOff = -1; // -1 = no fixed day off
     let shopHolidays = [];
     const DAY_NAMES = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+
+    async function loadClientPoints() {
+      if (!token) return;
+      try {
+        const res = await fetch('/api/reviews/my-points', { headers: { 'Authorization': 'Bearer ' + token } });
+        if (!res.ok) return;
+        const data = await res.json();
+        clientPoints = data.points || 0;
+        clientExpiringPoints = data.expiring_points || 0;
+        clientExpiringDays = data.expiring_days;
+        pointsValuePercent = data.discount_per_point || 10;
+        maxPointsSpend = data.max_spend_per_booking || 5;
+      } catch(e) {}
+    }
 
     // Init calendar to current month + load settings
     (async function initCal() {
@@ -901,11 +922,31 @@
       if (selectedService && selectedTime) {
         const svc = SERVICES_LIST.find(s => s.id === selectedService);
         const finalPrice = discountPct ? Math.round(svc.price * (1 - discountPct / 100)) : svc.price;
+
+        // Points spending section
+        if (isLoggedIn && clientPoints > 0) {
+          const canSpend = Math.min(clientPoints, maxPointsSpend);
+          const pointsDiscountPct = pointsToSpend * pointsValuePercent;
+          html += `
+          <div style="background:rgba(200,168,92,0.08);border:1px solid rgba(200,168,92,0.2);border-radius:12px;padding:1rem;margin-bottom:0.75rem">
+            <div style="font-size:0.85rem;font-weight:600;color:var(--dark);margin-bottom:0.5rem">⭐ Использовать баллы (доступно: ${clientPoints})</div>
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap">
+              <input type="range" min="0" max="${canSpend}" value="${pointsToSpend}" oninput="setPointsToSpend(Number(this.value))" style="flex:1;min-width:120px;accent-color:var(--gold)">
+              <span style="font-size:0.9rem;font-weight:700;color:var(--gold)">${pointsToSpend} балл(ов) = ${pointsDiscountPct}% скидка</span>
+            </div>
+            ${clientExpiringPoints > 0 && clientExpiringDays !== null ? '<div style="color:#fbbf24;font-size:0.75rem;margin-top:0.4rem">⚠️ ' + clientExpiringPoints + ' балл(ов) сгорают через ' + clientExpiringDays + ' дн.</div>' : ''}
+          </div>`;
+        }
+
+        const pointsDiscountExtra = pointsToSpend * pointsValuePercent;
+        const totalDiscountPct = Math.min((discountPct || 0) + pointsDiscountExtra, 100);
+        const priceAfterPoints = Math.round(svc.price * (1 - totalDiscountPct / 100));
+
         html += `
           <div class="book-summary">
             📋 <strong>${svc.name}</strong> · ${formatDateRu(selectedDate)} в ${selectedTime}<br>
             👤 Барбер: <strong>${selectedMaster || 'любой свободный'}</strong><br>
-            💰 Стоимость: <strong>${finalPrice}₽</strong>${discountPct ? ' <span style="color:#4ade80">(скидка ' + discountPct + '%)</span>' : ''}
+            💰 Стоимость: <strong>${priceAfterPoints}₽</strong>${totalDiscountPct ? ' <span style="color:#4ade80">(скидка ' + totalDiscountPct + '%)</span>' : ''}
           </div>`;
       }
 
@@ -931,6 +972,11 @@
 
     function pickTime(time) {
       selectedTime = time;
+      if (currentSlots) renderBookingForm(currentSlots);
+    }
+
+    function setPointsToSpend(val) {
+      pointsToSpend = val;
       if (currentSlots) renderBookingForm(currentSlots);
     }
 
@@ -963,6 +1009,7 @@
             date: selectedDate,
             time: selectedTime,
             master: selectedMaster || 'любой свободный',
+            points_to_spend: pointsToSpend || 0,
           }),
         });
 
@@ -977,7 +1024,9 @@
         // Show success
         const isLoggedIn = !!currentUser;
         const discountPct = (isLoggedIn && currentUser.role === 'client') ? 10 : 0;
-        const finalPrice = discountPct ? Math.round(svc.price * (1 - discountPct / 100)) : svc.price;
+        const pointsDiscountExtra = pointsToSpend * pointsValuePercent;
+        const totalDiscountPct = Math.min((discountPct || 0) + pointsDiscountExtra, 100);
+        const finalPrice = totalDiscountPct ? Math.round(svc.price * (1 - totalDiscountPct / 100)) : svc.price;
 
         const content = document.getElementById('slotsContent');
         content.innerHTML = `
@@ -988,11 +1037,13 @@
               <strong>${svc.name}</strong><br>
               ${formatDateRu(selectedDate)} в ${selectedTime}<br>
               Барбер: ${selectedMaster || 'любой свободный'}<br>
-              Стоимость: ${finalPrice}₽${discountPct ? ' (скидка ' + discountPct + '%)' : ''}<br><br>
+              Стоимость: ${finalPrice}₽${totalDiscountPct ? ' (скидка ' + totalDiscountPct + '%)' : ''}<br><br>
               Ждём вас в The Lion's Den Barbershop! 🦁
             </p>
             <button class="btn-new" onclick="resetBooking()">Новая запись</button>
           </div>`;
+        // Reset points after successful booking
+        pointsToSpend = 0;
       } catch (e) {
         alert('Ошибка сети. Попробуйте позже.');
         btn.disabled = false;
