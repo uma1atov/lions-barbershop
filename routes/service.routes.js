@@ -16,6 +16,14 @@ router.get("/", (req, res) => {
   res.json(services);
 });
 
+// ─── GET /api/services/admin/all ───────────────────
+// Admin: list ALL services (active + inactive)
+router.get("/admin/all", authenticate, can("services:edit"), (req, res) => {
+  const services = readJSON(FILES.services)
+    .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+  res.json(services);
+});
+
 // ─── GET /api/services/:id ─────────────────────────
 // Public: get single service
 router.get("/:id", (req, res) => {
@@ -131,24 +139,43 @@ router.patch("/:id", authenticate, can("services:edit"), (req, res, next) => {
 });
 
 // ─── DELETE /api/services/:id ──────────────────────
-// Admin: soft-delete service (set is_active=false)
+// Admin: soft-delete (deactivate) or permanent delete with ?permanent=true
 router.delete("/:id", authenticate, can("services:delete"), (req, res, next) => {
   try {
     const services = readJSON(FILES.services);
     const idx = services.findIndex((s) => s.id === req.params.id);
     if (idx === -1) return res.status(404).json({ error: "Услуга не найдена" });
 
-    services[idx].is_active = false;
-    services[idx].updated_at = new Date().toISOString();
-    writeJSON(FILES.services, services);
+    const permanent = req.query.permanent === "true";
+    const serviceName = services[idx].name;
 
-    logAudit({
-      actorUserId: req.user.id,
-      action: "service.deactivate",
-      entityType: "service",
-      entityId: req.params.id,
-      ip: req.ip,
-    });
+    if (permanent) {
+      // Hard delete — remove from data completely
+      services.splice(idx, 1);
+      writeJSON(FILES.services, services);
+
+      logAudit({
+        actorUserId: req.user.id,
+        action: "service.delete",
+        entityType: "service",
+        entityId: req.params.id,
+        meta: { name: serviceName, permanent: true },
+        ip: req.ip,
+      });
+    } else {
+      // Soft delete — deactivate
+      services[idx].is_active = false;
+      services[idx].updated_at = new Date().toISOString();
+      writeJSON(FILES.services, services);
+
+      logAudit({
+        actorUserId: req.user.id,
+        action: "service.deactivate",
+        entityType: "service",
+        entityId: req.params.id,
+        ip: req.ip,
+      });
+    }
 
     res.json({ ok: true });
   } catch (err) {

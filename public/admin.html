@@ -529,7 +529,8 @@
     // ═══ SERVICES ═══
     let allServices = [];
     async function loadServices() {
-      const res = await fetch('/api/services');
+      // Admin sees ALL services (active + inactive)
+      const res = await fetch('/api/services/admin/all', { headers: hdr() });
       allServices = await res.json();
       document.getElementById('servicesBody').innerHTML = allServices.map(s => `
         <tr style="${s.is_active ? '' : 'opacity:0.4'}">
@@ -538,9 +539,12 @@
           <td>${s.duration} мин</td>
           <td>${esc(s.icon || '')}</td>
           <td><span class="badge ${s.is_active ? 'badge-active' : 'badge-inactive'}">${s.is_active ? 'Акт.' : 'Неакт.'}</span></td>
-          <td>
+          <td style="white-space:nowrap">
             <button class="btn-sm btn-edit" onclick="editService('${s.id}')">Ред.</button>
-            ${s.is_active ? `<button class="btn-sm btn-delete" onclick="deleteService('${s.id}')">Деакт.</button>` : ''}
+            ${s.is_active
+              ? `<button class="btn-sm btn-delete" onclick="deactivateService('${s.id}')">Деакт.</button>`
+              : `<button class="btn-sm" style="background:#dfd;color:#060;border:1px solid #090" onclick="activateService('${s.id}')">Акт.</button>`}
+            <button class="btn-sm" style="background:#fdd;color:#c00;border:1px solid #c00" onclick="permanentDeleteService('${s.id}','${s.name.replace(/'/g,"\\'")}')">Удалить</button>
           </td>
         </tr>
       `).join('');
@@ -562,10 +566,20 @@
       await fetch(id ? '/api/services/' + id : '/api/services', { method: id ? 'PATCH' : 'POST', headers: hdr(), body: JSON.stringify(data) });
       closeModal('serviceModal'); loadServices();
     }
-    async function deleteService(id) {
-      if (!confirm('Деактивировать услугу?')) return;
+    async function deactivateService(id) {
+      if (!confirm('Деактивировать услугу? Она не будет видна клиентам.')) return;
       await fetch('/api/services/' + id, { method: 'DELETE', headers: hdr() });
       loadServices();
+    }
+    async function activateService(id) {
+      await fetch('/api/services/' + id, { method: 'PATCH', headers: hdr(), body: JSON.stringify({ is_active: true }) });
+      loadServices();
+    }
+    async function permanentDeleteService(id, name) {
+      if (!confirm('УДАЛИТЬ услугу «' + name + '» навсегда? Это действие нельзя отменить!')) return;
+      if (!confirm('Вы уверены? Услуга будет полностью удалена из базы.')) return;
+      const res = await fetch('/api/services/' + id + '?permanent=true', { method: 'DELETE', headers: hdr() });
+      if (res.ok) { loadServices(); } else { const d = await res.json(); alert(d.error || 'Ошибка удаления'); }
     }
 
     // ═══ USERS ═══
