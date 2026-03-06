@@ -60,6 +60,11 @@
     .badge-scheduled { background: #dbeafe; color: #1e40af; }
     .badge-completed { background: #d1fae5; color: #065f46; }
     .badge-no_show { background: #fef3c7; color: #92400e; }
+    .btn-confirm { background: #c7d2fe; color: #3730a3; border: none; padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    .btn-confirm:hover { background: #a5b4fc; }
+    .btn-reject { background: #fecaca; color: #991b1b; border: none; padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    .btn-reject:hover { background: #fca5a5; }
+    .badge-confirmed { background: #c7d2fe; color: #3730a3; }
 
     .empty { text-align: center; padding: 3rem; color: #999; }
     .empty .icon { font-size: 3rem; margin-bottom: 1rem; }
@@ -229,6 +234,7 @@
     const API = '';
     let token = localStorage.getItem('token');
     let user = null;
+    let barberProfile = null;
     try { user = JSON.parse(localStorage.getItem('user')); } catch(e) {}
     if (!token || !user || user.role !== 'barber') { window.location.href = '/login.html'; }
 
@@ -257,6 +263,7 @@
         scheduled: ['Запланировано', 'badge-scheduled'],
         completed: ['Выполнено', 'badge-completed'],
         no_show: ['Неявка', 'badge-no_show'],
+        confirmed: ['Подтверждено', 'badge-confirmed'],
       };
       const [text, cls] = map[status] || ['—', ''];
       return `<span class="badge ${cls}">${text}</span>`;
@@ -305,12 +312,27 @@
             <span class="service">${a.service_name || a.service}</span>
             <div class="client">👤 ${a.client_name || a.name} ${a.client_phone || a.phone ? '· ' + (a.client_phone || a.phone) : ''}</div>
             <div class="price">${a.price_final || '—'}₽</div>
+            ${a.notes ? `<div style="color:#888;font-size:0.8rem;margin-top:0.2rem">📝 ${a.notes}</div>` : ''}
           </div>
           <div class="apt-actions">
             ${statusBadge(a.status)}
             ${a.status === 'scheduled' ? `
+              ${barberProfile && barberProfile.can_manage_bookings ? `
+                <button class="btn-confirm" onclick="markStatus('${a.id}','confirmed')">✔️ Подтвердить</button>
+                <button class="btn-reject" onclick="markStatus('${a.id}','cancelled')">🚫 Отклонить</button>
+              ` : ''}
               <button class="btn-done" onclick="markStatus('${a.id}','completed')">✅ Выполнено</button>
               <button class="btn-noshow" onclick="markStatus('${a.id}','no_show')">❌ Неявка</button>
+            ` : ''}
+            ${a.status === 'confirmed' ? `
+              <button class="btn-done" onclick="markStatus('${a.id}','completed')">✅ Выполнено</button>
+              <button class="btn-noshow" onclick="markStatus('${a.id}','no_show')">❌ Неявка</button>
+              ${barberProfile && barberProfile.can_manage_bookings ? `
+                <button class="btn-reject" onclick="markStatus('${a.id}','cancelled')">🚫 Отклонить</button>
+              ` : ''}
+            ` : ''}
+            ${barberProfile && barberProfile.can_manage_bookings ? `
+              <button class="btn-confirm" onclick="editNotes('${a.id}','${(a.notes || '').replace(/'/g, "\\'")}')">📝</button>
             ` : ''}
           </div>
         </div>
@@ -318,7 +340,8 @@
     }
 
     async function markStatus(id, status) {
-      const label = status === 'completed' ? 'Выполнено' : 'Неявка';
+      const labels = { completed: 'Выполнено', no_show: 'Неявка', confirmed: 'Подтверждено', cancelled: 'Отклонено' };
+      const label = labels[status] || status;
       if (!confirm(`Отметить как "${label}"?`)) return;
       try {
         const res = await fetch(API + '/api/barber/appointments/' + id + '/status', {
@@ -549,8 +572,30 @@
       } catch (e) { /* ignore */ }
     }
 
+    async function loadBarberProfile() {
+      try {
+        const res = await fetch(API + '/api/barber/me', { headers: headers() });
+        if (res.ok) barberProfile = await res.json();
+      } catch(e) {}
+    }
+
+    async function editNotes(id, currentNotes) {
+      const notes = prompt('Заметка к записи:', currentNotes);
+      if (notes === null) return;
+      try {
+        const res = await fetch(API + '/api/barber/appointments/' + id + '/notes', {
+          method: 'PATCH', headers: headers(), body: JSON.stringify({ notes })
+        });
+        if (!res.ok) { const d = await res.json(); alert(d.error || 'Ошибка'); return; }
+        loadAppointments();
+      } catch(e) { alert('Ошибка сети'); }
+    }
+
     // Init
-    setToday();
+    (async () => {
+      await loadBarberProfile();
+      setToday();
+    })();
     loadStats();
     loadServices();
     loadProfile();

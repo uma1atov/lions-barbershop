@@ -49,6 +49,7 @@
     .badge-completed { background: #d1fae5; color: #065f46; }
     .badge-cancelled { background: #fee2e2; color: #991b1b; }
     .badge-no_show { background: #fef3c7; color: #92400e; }
+    .badge-confirmed { background: #c7d2fe; color: #3730a3; }
 
     .btn-sm { padding: 0.4rem 0.9rem; border: none; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .btn-cancel { background: #fee2e2; color: #991b1b; }
@@ -243,6 +244,7 @@
     function statusBadge(status) {
       const map = {
         scheduled: ['Запланировано', 'badge-scheduled'],
+        confirmed: ['Подтверждено', 'badge-confirmed'],
         completed: ['Выполнено', 'badge-completed'],
         cancelled: ['Отменено', 'badge-cancelled'],
         no_show: ['Неявка', 'badge-no_show'],
@@ -306,7 +308,7 @@
           </div>
           <div class="booking-actions">
             ${statusBadge(b.status)}
-            ${showCancel && b.status === 'scheduled' ? `<button class="btn-sm btn-cancel" onclick="cancelBooking('${b.id}')">Отменить</button>` : ''}
+            ${showCancel && ['scheduled', 'confirmed'].includes(b.status) ? `<button class="btn-sm btn-cancel" onclick="cancelBooking('${b.id}')">Отменить</button>` : ''}
             ${!showCancel && (b.status === 'completed' || b.status === 'cancelled') ? `<button class="btn-sm btn-rebook" onclick="rebook('${b.id}')">Повторить</button>` : ''}
           </div>
         </div>

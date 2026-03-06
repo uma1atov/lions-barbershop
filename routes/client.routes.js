@@ -110,8 +110,8 @@ router.post("/my-bookings/:id/cancel", authenticate, (req, res, next) => {
       booking.client_user_id === req.user.id;
 
     if (!isOwner) return res.status(403).json({ error: "Это не ваша запись" });
-    if (booking.status !== "scheduled") {
-      return res.status(400).json({ error: "Можно отменить только запланированные записи" });
+    if (!["scheduled", "confirmed"].includes(booking.status)) {
+      return res.status(400).json({ error: "Можно отменить только запланированные/подтверждённые записи" });
     }
 
     // Calculate time until appointment

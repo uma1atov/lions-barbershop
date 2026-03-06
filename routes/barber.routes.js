@@ -62,6 +62,7 @@ router.post("/admin", authenticate, can("barbers:create"), async (req, res, next
         6: { start: "09:00", end: "18:00", breakStart: null, breakEnd: null },
       },
       experience: experience || "",
+      can_manage_bookings: false,
       user_id: null,
       vacations: [],
       createdAt: new Date().toISOString(),
@@ -125,6 +126,7 @@ router.patch("/admin/:id", authenticate, can("barbers:edit"), (req, res, next) =
     const allowed = [
       "name", "bio", "photoUrl", "services", "schedule",
       "experience", "telegramChatId", "isActive", "vacations",
+      "can_manage_bookings",
     ];
     const changes = {};
 
@@ -305,8 +307,10 @@ router.get("/my-appointments", authenticate, authorize("barber"), (req, res) => 
   const barber = barbers.find((b) => b.user_id === req.user.id);
   if (!barber) return res.status(404).json({ error: "Профиль барбера не найден" });
 
+  const showCancelled = barber.can_manage_bookings || req.query.include_cancelled === "true";
   let bookings = readJSON(FILES.bookings).filter(
-    (b) => (b.master === barber.name || b.barber_name === barber.name) && b.status !== "cancelled"
+    (b) => (b.master === barber.name || b.barber_name === barber.name) &&
+      (showCancelled || b.status !== "cancelled")
   );
 
   const { date, from, to } = req.query;
@@ -325,16 +329,28 @@ router.get("/my-appointments", authenticate, authorize("barber"), (req, res) => 
 });
 
 // ─── PATCH /api/barber/appointments/:id/status ─────
-// Barber: mark appointment completed/no_show
+// Barber: mark appointment status (expanded with can_manage_bookings)
 router.patch("/appointments/:id/status", authenticate, can("appointments:mark_status"), (req, res, next) => {
   try {
     const { status } = req.body;
-    if (!["completed", "no_show"].includes(status)) {
-      return res.status(400).json({ error: "Статус может быть: completed, no_show" });
-    }
 
     const barbers = readJSON(FILES.barbers);
     const barber = barbers.find((b) => b.user_id === req.user.id);
+
+    // Determine allowed statuses based on barber flag
+    let allowedStatuses = ["completed", "no_show"];
+    if (req.user.role === "barber") {
+      if (barber && barber.can_manage_bookings) {
+        allowedStatuses = ["completed", "no_show", "confirmed", "cancelled"];
+      }
+    } else {
+      // Admin/owner_admin get full access via this endpoint too
+      allowedStatuses = ["completed", "no_show", "confirmed", "cancelled"];
+    }
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ error: `Статус может быть: ${allowedStatuses.join(", ")}` });
+    }
 
     const bookings = readJSON(FILES.bookings);
     const idx = bookings.findIndex((b) => b.id === req.params.id);
@@ -346,6 +362,15 @@ router.patch("/appointments/:id/status", authenticate, can("appointments:mark_st
       if (bookings[idx].master !== barber.name && bookings[idx].barber_name !== barber.name) {
         return res.status(403).json({ error: "Это не ваша запись" });
       }
+    }
+
+    // Validate status transitions
+    const cur = bookings[idx].status;
+    if (status === "confirmed" && cur !== "scheduled") {
+      return res.status(400).json({ error: "Подтвердить можно только запланированную запись" });
+    }
+    if (status === "cancelled" && !["scheduled", "confirmed"].includes(cur)) {
+      return res.status(400).json({ error: "Отменить можно только запланированную/подтверждённую запись" });
     }
 
     bookings[idx].status = status;
@@ -371,22 +396,25 @@ router.patch("/appointments/:id/status", authenticate, can("appointments:mark_st
       writeJSON(FILES.payments, payments);
     }
 
-    // Award 1 loyalty point to registered client
+    // Award loyalty points on completed
     if (status === "completed" && bookings[idx].client_user_id) {
-      const users = readJSON(FILES.users);
-      const cIdx = users.findIndex((u) => u.id === bookings[idx].client_user_id);
-      if (cIdx !== -1) {
-        if (!users[cIdx].points) users[cIdx].points = 0;
-        if (!users[cIdx].points_history) users[cIdx].points_history = [];
-        users[cIdx].points += 1;
-        users[cIdx].points_history.push({
-          type: "booking_completed",
-          amount: 1,
+      try {
+        const { earnPoints } = require("../lib/points");
+        const settings = getSettings();
+        earnPoints(bookings[idx].client_user_id, {
+          type: "booking",
+          amount: settings.points_per_booking || 1,
           booking_id: bookings[idx].id,
-          date: new Date().toISOString(),
         });
-        writeJSON(FILES.users, users);
-      }
+      } catch (e) { /* points module optional */ }
+    }
+
+    // Refund points on cancel (barber cancel = always refund, like admin cancel)
+    if (status === "cancelled" && bookings[idx].points_spent > 0 && bookings[idx].client_user_id) {
+      try {
+        const { refundPoints } = require("../lib/points");
+        refundPoints(bookings[idx].client_user_id, bookings[idx].id);
+      } catch (e) { /* points module optional */ }
     }
 
     logAudit({
@@ -394,6 +422,50 @@ router.patch("/appointments/:id/status", authenticate, can("appointments:mark_st
       action: `booking.${status}`,
       entityType: "booking",
       entityId: req.params.id,
+      meta: { barber: barber ? barber.name : req.user.name },
+      ip: req.ip,
+    });
+
+    res.json(bookings[idx]);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── PATCH /api/barber/appointments/:id/notes ──────
+// Barber (with can_manage_bookings): edit notes on own appointment
+router.patch("/appointments/:id/notes", authenticate, authorize("barber"), (req, res, next) => {
+  try {
+    const { notes } = req.body;
+    if (notes === undefined) {
+      return res.status(400).json({ error: "Укажите заметку (notes)" });
+    }
+
+    const barbers = readJSON(FILES.barbers);
+    const barber = barbers.find((b) => b.user_id === req.user.id);
+    if (!barber) return res.status(404).json({ error: "Профиль барбера не найден" });
+    if (!barber.can_manage_bookings) {
+      return res.status(403).json({ error: "У вас нет прав на управление записями" });
+    }
+
+    const bookings = readJSON(FILES.bookings);
+    const idx = bookings.findIndex((b) => b.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: "Запись не найдена" });
+
+    if (bookings[idx].master !== barber.name && bookings[idx].barber_name !== barber.name) {
+      return res.status(403).json({ error: "Это не ваша запись" });
+    }
+
+    bookings[idx].notes = String(notes).slice(0, 500);
+    bookings[idx].updated_at = new Date().toISOString();
+    writeJSON(FILES.bookings, bookings);
+
+    logAudit({
+      actorUserId: req.user.id,
+      action: "booking.notes_update",
+      entityType: "booking",
+      entityId: req.params.id,
+      meta: { barber: barber.name },
       ip: req.ip,
     });
 

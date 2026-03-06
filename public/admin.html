@@ -65,6 +65,7 @@
     .badge-completed { background: #d1fae5; color: #065f46; }
     .badge-cancelled { background: #fee2e2; color: #991b1b; }
     .badge-no_show { background: #fef3c7; color: #92400e; }
+    .badge-confirmed { background: #c7d2fe; color: #3730a3; }
     .badge-pending { background: #fef3c7; color: #92400e; }
     .badge-confirmed { background: #d1fae5; color: #065f46; }
 
@@ -145,6 +146,7 @@
         <select id="bkFilterStatus" onchange="loadBookings()">
           <option value="">Все статусы</option>
           <option value="scheduled">Запланировано</option>
+          <option value="confirmed">Подтверждено</option>
           <option value="completed">Выполнено</option>
           <option value="cancelled">Отменено</option>
           <option value="no_show">Неявка</option>
@@ -159,7 +161,7 @@
     <!-- ═══ BARBERS ═══ -->
     <div class="panel" id="barbersPanel">
       <div style="margin-bottom:1rem"><button class="btn-add" onclick="openBarberModal()">+ Добавить барбера</button></div>
-      <table><thead><tr><th>Имя</th><th>Описание</th><th>Опыт</th><th>Telegram</th><th>Статус</th><th></th></tr></thead>
+      <table><thead><tr><th>Имя</th><th>Описание</th><th>Опыт</th><th>Telegram</th><th>Упр.</th><th>Статус</th><th></th></tr></thead>
       <tbody id="barbersBody"></tbody></table>
     </div>
 
@@ -438,6 +440,7 @@
     const statusMap = {
       scheduled: ['Запл.', 'badge-scheduled'], completed: ['Выполнено', 'badge-completed'],
       cancelled: ['Отменено', 'badge-cancelled'], no_show: ['Неявка', 'badge-no_show'],
+      confirmed: ['Подтв.', 'badge-confirmed'],
     };
     const roleMap = {
       owner_admin: ['Владелец', 'badge-owner'], admin: ['Админ', 'badge-admin'],
@@ -510,6 +513,7 @@
           <td style="max-width:180px;font-size:0.72rem;color:#888">${esc(b.bio || '—')}</td>
           <td>${esc(b.experience || '—')}</td>
           <td>${b.telegramChatId ? '<span class="badge badge-active">Да</span>' : '—'}</td>
+          <td><button class="btn-sm ${b.can_manage_bookings ? 'btn-edit' : 'btn-delete'}" onclick="toggleBookingAccess('${b.id}',${!b.can_manage_bookings})">${b.can_manage_bookings ? '✅' : '❌'}</button></td>
           <td><span class="badge ${b.isActive ? 'badge-active' : 'badge-inactive'}">${b.isActive ? 'Акт.' : 'Неакт.'}</span></td>
           <td>
             <button class="btn-sm btn-edit" onclick="editBarber('${b.id}')">Ред.</button>
@@ -546,6 +550,12 @@
       if (!confirm('Удалить барбера «' + name + '» навсегда? Это действие нельзя отменить.')) return;
       const res = await fetch('/api/barbers/admin/' + id, { method: 'DELETE', headers: hdr() });
       if (res.ok) { loadBarbers(); } else { const d = await res.json(); alert(d.error || 'Ошибка'); }
+    }
+    async function toggleBookingAccess(id, enable) {
+      const label = enable ? 'Разрешить барберу управление записями?' : 'Отключить управление записями?';
+      if (!confirm(label)) return;
+      await fetch('/api/barbers/admin/' + id, { method: 'PATCH', headers: hdr(), body: JSON.stringify({ can_manage_bookings: enable }) });
+      loadBarbers();
     }
 
     // ═══ SERVICES ═══
