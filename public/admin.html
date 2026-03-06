@@ -130,6 +130,7 @@
       <div class="tab" data-panel="analytics">📊 Аналитика</div>
       <div class="tab" data-panel="audit">📝 Аудит</div>
       <div class="tab" data-panel="promo">🎟️ Промокоды</div>
+      <div class="tab" data-panel="reviews">⭐ Отзывы</div>
       <div class="tab" data-panel="blacklist">🚫 Чёрный список</div>
       <div class="tab owner-only" data-panel="admins">👑 Админы</div>
       <div class="tab owner-only" data-panel="settings">⚙️ Настройки</div>
@@ -215,6 +216,13 @@
       <div style="margin-bottom:1rem"><button class="btn-add" onclick="openPromoModal()">+ Создать промокод</button></div>
       <table><thead><tr><th>Код</th><th>Скидка</th><th>Использовано</th><th>Лимит</th><th>Истекает</th><th>Статус</th><th></th></tr></thead>
       <tbody id="promoBody"></tbody></table>
+    </div>
+
+    <!-- ═══ REVIEWS ═══ -->
+    <div class="panel" id="reviewsPanel">
+      <table><thead><tr><th>Клиент</th><th>Оценка</th><th>Отзыв</th><th>Барбер</th><th>Дата</th><th>Статус</th><th></th></tr></thead>
+      <tbody id="reviewsBody"></tbody></table>
+      <div class="empty" id="reviewsEmpty" style="display:none">Отзывов пока нет</div>
     </div>
 
     <!-- ═══ BLACKLIST ═══ -->
@@ -484,6 +492,7 @@
           <td>
             <button class="btn-sm btn-edit" onclick="editBarber('${b.id}')">Ред.</button>
             ${b.isActive ? `<button class="btn-sm btn-delete" onclick="toggleBarber('${b.id}',false)">Деакт.</button>` : `<button class="btn-sm btn-edit" onclick="toggleBarber('${b.id}',true)">Акт.</button>`}
+            <button class="btn-sm btn-delete" onclick="deleteBarber('${b.id}','${esc(b.name)}')">Удалить</button>
           </td>
         </tr>
       `).join('');
@@ -510,6 +519,11 @@
       if (!confirm(activate ? 'Активировать?' : 'Деактивировать?')) return;
       await fetch('/api/barbers/admin/' + id, { method: 'PATCH', headers: hdr(), body: JSON.stringify({ isActive: activate }) });
       loadBarbers();
+    }
+    async function deleteBarber(id, name) {
+      if (!confirm('Удалить барбера «' + name + '» навсегда? Это действие нельзя отменить.')) return;
+      const res = await fetch('/api/barbers/admin/' + id, { method: 'DELETE', headers: hdr() });
+      if (res.ok) { loadBarbers(); } else { const d = await res.json(); alert(d.error || 'Ошибка'); }
     }
 
     // ═══ SERVICES ═══
@@ -943,9 +957,48 @@
       window.location.href = '/login.html';
     }
 
+    // ═══ REVIEWS ═══
+    async function loadReviews() {
+      const res = await fetch('/api/reviews/admin', { headers: hdr() });
+      const reviews = await res.json();
+      const empty = document.getElementById('reviewsEmpty');
+      if (!reviews.length) { document.getElementById('reviewsBody').innerHTML = ''; empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      document.getElementById('reviewsBody').innerHTML = reviews.map(r => {
+        const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+        const date = new Date(r.created_at).toLocaleDateString('ru-RU');
+        const statusBadge = r.status === 'approved'
+          ? '<span class="badge badge-active">Виден</span>'
+          : '<span class="badge badge-inactive">Скрыт</span>';
+        return `<tr>
+          <td><strong>${esc(r.client_name)}</strong><br><span style="font-size:0.65rem;color:#888">${esc(r.client_phone || '')}</span></td>
+          <td style="color:#c8a85c">${stars}</td>
+          <td style="max-width:220px;font-size:0.75rem">${esc(r.text.length > 100 ? r.text.slice(0, 100) + '...' : r.text)}</td>
+          <td>${esc(r.barber_name || '—')}</td>
+          <td style="font-size:0.75rem">${date}</td>
+          <td>${statusBadge}</td>
+          <td>
+            ${r.status === 'approved'
+              ? `<button class="btn-sm btn-delete" onclick="toggleReview('${r.id}','hidden')">Скрыть</button>`
+              : `<button class="btn-sm btn-edit" onclick="toggleReview('${r.id}','approved')">Показать</button>`}
+            <button class="btn-sm btn-delete" onclick="deleteReview('${r.id}')">Удалить</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+    async function toggleReview(id, status) {
+      await fetch('/api/reviews/admin/' + id, { method: 'PATCH', headers: hdr(), body: JSON.stringify({ status }) });
+      loadReviews();
+    }
+    async function deleteReview(id) {
+      if (!confirm('Удалить отзыв навсегда?')) return;
+      await fetch('/api/reviews/admin/' + id, { method: 'DELETE', headers: hdr() });
+      loadReviews();
+    }
+
     // Init
     loadBookings(); loadBarbers(); loadServices(); loadUsers();
-    loadAnalytics(); loadAudit(); loadPromo(); loadBlacklist();
+    loadAnalytics(); loadAudit(); loadPromo(); loadBlacklist(); loadReviews();
     loadProfile();
     if (isOwner) { loadAdmins(); loadSettings(); }
   </script>

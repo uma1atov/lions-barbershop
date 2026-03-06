@@ -75,6 +75,22 @@
 
     .section-title { font-size: 1rem; font-weight: 700; color: var(--dark); margin: 2rem 0 1rem; padding-top: 1rem; border-top: 1px solid #eee; }
 
+    /* Points & Reviews */
+    .points-banner { background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 100%); border-radius: 12px; padding: 1.25rem; color: #fff; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .points-num { font-size: 2rem; font-weight: 800; color: var(--gold); }
+    .points-info { font-size: 0.75rem; color: #aaa; line-height: 1.6; }
+    .points-discount { background: var(--gold); color: var(--dark); padding: 0.5rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.9rem; }
+    .review-form { background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 1.5rem; }
+    .star-input { display: flex; gap: 0.3rem; font-size: 1.8rem; cursor: pointer; margin: 0.5rem 0; }
+    .star-input span { color: #ddd; transition: color 0.2s; }
+    .star-input span.active { color: var(--gold); }
+    .star-input span:hover, .star-input span:hover ~ span { color: var(--gold); }
+    textarea.review-text { width: 100%; padding: 0.7rem; border: 2px solid #eee; border-radius: 8px; font-size: 0.85rem; resize: vertical; min-height: 80px; font-family: inherit; }
+    textarea.review-text:focus { border-color: var(--gold); outline: none; }
+    .my-review { background: #fff; border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .my-review .stars { color: var(--gold); }
+    select.review-select { width: 100%; padding: 0.6rem; border: 2px solid #eee; border-radius: 8px; font-size: 0.85rem; margin-bottom: 0.75rem; }
+
     @media (max-width: 600px) {
       .booking-card { flex-direction: column; align-items: flex-start; }
       .booking-actions { width: 100%; justify-content: flex-end; }
@@ -101,12 +117,14 @@
       <div class="stat-card"><div class="num gold" id="statSpent">—</div><div class="label">Потрачено</div></div>
       <div class="stat-card"><div class="num" id="statSaved">—</div><div class="label">Сэкономлено</div></div>
       <div class="stat-card"><div class="num gold" id="statUpcoming">—</div><div class="label">Предстоящих</div></div>
+      <div class="stat-card"><div class="num gold" id="statPoints">0</div><div class="label">⭐ Баллов</div></div>
     </div>
 
     <!-- Tabs -->
     <div class="tabs">
       <div class="tab active" onclick="showTab('upcoming')">📅 Предстоящие</div>
       <div class="tab" onclick="showTab('history')">📋 История</div>
+      <div class="tab" onclick="showTab('reviews')">⭐ Отзывы</div>
       <div class="tab" onclick="showTab('profile')">👤 Профиль</div>
     </div>
 
@@ -118,6 +136,47 @@
     <!-- History -->
     <div class="panel" id="panelHistory">
       <div id="historyList"></div>
+    </div>
+
+    <!-- Reviews -->
+    <div class="panel" id="panelReviews">
+      <!-- Points banner -->
+      <div class="points-banner">
+        <div>
+          <div>Ваши баллы: <span class="points-num" id="pointsNum">0</span></div>
+          <div class="points-info">
+            +1 балл за стрижку · +1 балл за отзыв<br>
+            1 балл = 10% скидка · 5 баллов = 50% скидка
+          </div>
+        </div>
+        <div class="points-discount" id="pointsDiscount">Скидка: 0%</div>
+      </div>
+
+      <!-- Review form -->
+      <div class="review-form">
+        <h3 style="margin-bottom:0.75rem;color:var(--dark)">Оставить отзыв</h3>
+        <select class="review-select" id="reviewBooking">
+          <option value="">Выберите визит (необязательно)</option>
+        </select>
+        <div style="font-size:0.8rem;color:#666;margin-bottom:0.3rem">Оценка:</div>
+        <div class="star-input" id="starInput">
+          <span onclick="setRating(1)">★</span>
+          <span onclick="setRating(2)">★</span>
+          <span onclick="setRating(3)">★</span>
+          <span onclick="setRating(4)">★</span>
+          <span onclick="setRating(5)">★</span>
+        </div>
+        <textarea class="review-text" id="reviewText" placeholder="Расскажите о вашем впечатлении..."></textarea>
+        <div style="margin-top:0.75rem">
+          <button class="btn-save" onclick="submitReview()">Отправить отзыв (+1 балл)</button>
+        </div>
+        <div class="msg msg-ok" id="reviewOk" style="margin-top:0.75rem"></div>
+        <div class="msg msg-err" id="reviewErr" style="margin-top:0.75rem"></div>
+      </div>
+
+      <!-- My reviews -->
+      <h3 style="margin:1.5rem 0 0.75rem;color:var(--dark)">Мои отзывы</h3>
+      <div id="myReviewsList"></div>
     </div>
 
     <!-- Profile -->
@@ -174,9 +233,10 @@
     function showTab(name) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-      const tabs = { upcoming: 0, history: 1, profile: 2 };
+      const tabs = { upcoming: 0, history: 1, reviews: 2, profile: 3 };
       document.querySelectorAll('.tab')[tabs[name]].classList.add('active');
       document.getElementById('panel' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+      if (name === 'reviews') { loadPoints(); loadMyReviews(); }
     }
 
     function statusBadge(status) {
@@ -338,10 +398,107 @@
       window.location.href = '/login.html';
     }
 
+    // ═══ REVIEWS & POINTS ═══
+    let reviewRating = 0;
+
+    function setRating(n) {
+      reviewRating = n;
+      document.querySelectorAll('#starInput span').forEach((s, i) => {
+        s.classList.toggle('active', i < n);
+      });
+    }
+
+    async function loadPoints() {
+      try {
+        const res = await fetch(API + '/api/reviews/my-points', { headers: headers() });
+        if (!res.ok) return;
+        const data = await res.json();
+        document.getElementById('pointsNum').textContent = data.points;
+        document.getElementById('statPoints').textContent = data.points;
+        document.getElementById('pointsDiscount').textContent = 'Скидка: ' + data.discount_percent + '%';
+      } catch(e) {}
+    }
+
+    async function loadMyReviews() {
+      try {
+        const res = await fetch(API + '/api/reviews/my', { headers: headers() });
+        if (!res.ok) return;
+        const reviews = await res.json();
+        const el = document.getElementById('myReviewsList');
+        if (!reviews.length) {
+          el.innerHTML = '<div class="empty"><div class="icon">⭐</div><p>Вы ещё не оставляли отзывов</p></div>';
+          return;
+        }
+        el.innerHTML = reviews.map(r => {
+          const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+          const date = new Date(r.created_at).toLocaleDateString('ru-RU');
+          return `<div class="my-review">
+            <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem">
+              <span class="stars">${stars}</span>
+              <span style="font-size:0.7rem;color:#999">${date}</span>
+            </div>
+            <div style="font-size:0.85rem;color:#333">${r.text}</div>
+            ${r.barber_name ? '<div style="font-size:0.7rem;color:#999;margin-top:0.3rem">Барбер: ' + r.barber_name + '</div>' : ''}
+          </div>`;
+        }).join('');
+
+        // Populate booking select for review form
+        loadBookingSelect();
+      } catch(e) {}
+    }
+
+    async function loadBookingSelect() {
+      try {
+        const res = await fetch(API + '/api/my-bookings', { headers: headers() });
+        if (!res.ok) return;
+        const bookings = await res.json();
+        const completed = bookings.filter(b => b.status === 'completed');
+        // Get existing reviews to filter out already reviewed
+        const revRes = await fetch(API + '/api/reviews/my', { headers: headers() });
+        const myReviews = revRes.ok ? await revRes.json() : [];
+        const reviewedIds = new Set(myReviews.map(r => r.booking_id));
+
+        const available = completed.filter(b => !reviewedIds.has(b.id));
+        const sel = document.getElementById('reviewBooking');
+        sel.innerHTML = '<option value="">Выберите визит (необязательно)</option>';
+        available.forEach(b => {
+          sel.innerHTML += `<option value="${b.id}">${formatDate(b.date)} — ${b.service_name || b.service} (${b.barber_name || b.master})</option>`;
+        });
+      } catch(e) {}
+    }
+
+    async function submitReview() {
+      const ok = document.getElementById('reviewOk');
+      const err = document.getElementById('reviewErr');
+      ok.style.display = 'none'; err.style.display = 'none';
+
+      if (reviewRating < 1) { err.textContent = 'Поставьте оценку'; err.style.display = 'block'; return; }
+      const text = document.getElementById('reviewText').value.trim();
+      if (text.length < 3) { err.textContent = 'Напишите отзыв (минимум 3 символа)'; err.style.display = 'block'; return; }
+
+      const booking_id = document.getElementById('reviewBooking').value || null;
+
+      try {
+        const res = await fetch(API + '/api/reviews', {
+          method: 'POST',
+          headers: headers(),
+          body: JSON.stringify({ booking_id, rating: reviewRating, text }),
+        });
+        const data = await res.json();
+        if (!res.ok) { err.textContent = data.error; err.style.display = 'block'; return; }
+        ok.textContent = 'Отзыв отправлен! +1 балл начислен ⭐'; ok.style.display = 'block';
+        document.getElementById('reviewText').value = '';
+        setRating(0);
+        loadPoints();
+        loadMyReviews();
+      } catch(e) { err.textContent = 'Ошибка'; err.style.display = 'block'; }
+    }
+
     // Init
     loadStats();
     loadBookings();
     loadProfile();
+    loadPoints();
   </script>
 </body>
 </html>

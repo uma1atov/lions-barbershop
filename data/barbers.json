@@ -1,7 +1,7 @@
 [
   {
     "id": "barber_artem",
-    "name": "Артём",
+    "name": "Шукур",
     "role": "barber",
     "bio": "Старший барбер. Фейды, классика, бритьё.",
     "photoUrl": "",
@@ -16,7 +16,12 @@
       "camouflage"
     ],
     "schedule": {
-      "0": { "start": "10:00", "end": "18:00", "breakStart": null, "breakEnd": null },
+      "0": {
+        "start": "10:00",
+        "end": "18:00",
+        "breakStart": null,
+        "breakEnd": null
+      },
       "1": {
         "start": "09:00",
         "end": "20:00",
@@ -60,131 +65,6 @@
     "vacations": [],
     "day_offs": [],
     "created_at": "2026-01-01T00:00:00.000Z",
-    "updated_at": "2026-03-05T20:38:05.809Z"
-  },
-  {
-    "id": "barber_dmitry",
-    "name": "Дмитрий",
-    "role": "barber",
-    "bio": "Барбер-стилист. Модельные стрижки, бороды.",
-    "photoUrl": "",
-    "telegramChatId": null,
-    "isActive": true,
-    "services": [
-      "haircut",
-      "machine",
-      "beard",
-      "complex",
-      "camouflage"
-    ],
-    "schedule": {
-      "0": { "start": "10:00", "end": "18:00", "breakStart": null, "breakEnd": null },
-      "1": {
-        "start": "09:00",
-        "end": "20:00",
-        "breakStart": "13:00",
-        "breakEnd": "14:00"
-      },
-      "2": {
-        "start": "09:00",
-        "end": "20:00",
-        "breakStart": "13:00",
-        "breakEnd": "14:00"
-      },
-      "3": {
-        "start": "09:00",
-        "end": "20:00",
-        "breakStart": "13:00",
-        "breakEnd": "14:00"
-      },
-      "4": {
-        "start": "09:00",
-        "end": "20:00",
-        "breakStart": "13:00",
-        "breakEnd": "14:00"
-      },
-      "5": {
-        "start": "09:00",
-        "end": "20:00",
-        "breakStart": "13:00",
-        "breakEnd": "14:00"
-      },
-      "6": {
-        "start": "09:00",
-        "end": "18:00",
-        "breakStart": null,
-        "breakEnd": null
-      }
-    },
-    "experience": "5 лет опыта",
-    "createdAt": "2026-01-01T00:00:00.000Z",
-    "user_id": null,
-    "vacations": [],
-    "day_offs": [],
-    "created_at": "2026-01-01T00:00:00.000Z",
-    "updated_at": "2026-03-05T20:38:05.809Z"
-  },
-  {
-    "id": "barber_ruslan",
-    "name": "Руслан",
-    "role": "barber",
-    "bio": "Барбер. Камуфляж, стрижки машинкой.",
-    "photoUrl": "",
-    "telegramChatId": null,
-    "isActive": true,
-    "services": [
-      "haircut",
-      "machine",
-      "beard",
-      "shave",
-      "complex",
-      "camouflage"
-    ],
-    "schedule": {
-      "0": { "start": "10:00", "end": "18:00", "breakStart": null, "breakEnd": null },
-      "1": {
-        "start": "09:00",
-        "end": "20:00",
-        "breakStart": "13:00",
-        "breakEnd": "14:00"
-      },
-      "2": {
-        "start": "09:00",
-        "end": "20:00",
-        "breakStart": "13:00",
-        "breakEnd": "14:00"
-      },
-      "3": {
-        "start": "09:00",
-        "end": "20:00",
-        "breakStart": "13:00",
-        "breakEnd": "14:00"
-      },
-      "4": {
-        "start": "09:00",
-        "end": "20:00",
-        "breakStart": "13:00",
-        "breakEnd": "14:00"
-      },
-      "5": {
-        "start": "09:00",
-        "end": "20:00",
-        "breakStart": "13:00",
-        "breakEnd": "14:00"
-      },
-      "6": {
-        "start": "09:00",
-        "end": "18:00",
-        "breakStart": null,
-        "breakEnd": null
-      }
-    },
-    "experience": "6 лет опыта",
-    "createdAt": "2026-01-01T00:00:00.000Z",
-    "user_id": null,
-    "vacations": [],
-    "day_offs": [],
-    "created_at": "2026-01-01T00:00:00.000Z",
-    "updated_at": "2026-03-05T20:38:05.809Z"
+    "updated_at": "2026-03-05T22:33:07.526Z"
   }
 ]

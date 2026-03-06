@@ -60,6 +60,7 @@ const clientRoutes   = require("./routes/client.routes");
 const chatRoutes     = require("./routes/chat.routes");
 const analyticsRoutes = require("./routes/analytics.routes");
 const promoRoutes    = require("./routes/promo.routes");
+const reviewRoutes   = require("./routes/review.routes");
 
 // Auth
 app.use("/api", authRoutes);
@@ -88,6 +89,9 @@ app.use("/api/analytics", analyticsRoutes);
 
 // Promo codes
 app.use("/api/promo-codes", promoRoutes);
+
+// Reviews + Loyalty Points
+app.use("/api/reviews", reviewRoutes);
 
 // ─── Integrations (Telegram, WhatsApp, Scheduler) ──
 setTimeout(() => {

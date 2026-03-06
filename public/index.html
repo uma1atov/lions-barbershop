@@ -202,6 +202,19 @@
     .chat-link { color: var(--gold); cursor: pointer; font-size: 0.9rem; margin-top: 0.3rem; }
     .chat-link:hover { text-decoration: underline; }
 
+    /* REVIEWS */
+    .reviews-section { padding: 3rem 1rem; max-width: 900px; margin: 0 auto; }
+    .reviews-section h2 { text-align: center; font-size: 1.5rem; margin-bottom: 1.5rem; }
+    .reviews-grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+    @media(min-width:600px) { .reviews-grid { grid-template-columns: 1fr 1fr; } }
+    .review-card { background: var(--dark-light); border-radius: 12px; padding: 1.2rem; border: 1px solid #2a2a3e; }
+    .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .review-name { font-weight: 700; font-size: 0.9rem; }
+    .review-stars { color: var(--gold); font-size: 0.9rem; letter-spacing: 2px; }
+    .review-text { color: #bbb; font-size: 0.85rem; line-height: 1.5; margin-bottom: 0.5rem; }
+    .review-meta { color: #666; font-size: 0.7rem; }
+    .no-reviews { text-align: center; color: #666; padding: 2rem; }
+
     /* FOOTER */
     .footer { background: var(--dark-light); color: #666; padding: 1.5rem; text-align: center; font-size: 0.8rem; border-top: 1px solid #2a2a3e; }
 
@@ -298,7 +311,7 @@
       <div class="stats">
         <div><div class="num">5+</div><div class="label">лет опыта</div></div>
         <div><div class="num">5000+</div><div class="label">клиентов</div></div>
-        <div><div class="num">3</div><div class="label">барбера</div></div>
+        <div><div class="num" id="barbersCount">—</div><div class="label">барбера</div></div>
       </div>
     </div>
   </section>
@@ -400,34 +413,8 @@
   <section class="masters" id="masters">
     <div class="section-tag">Команда</div>
     <div class="section-title">Наши барберы</div>
-    <div class="masters-grid">
-      <div class="master-card">
-        <div class="master-bg amber"><div class="master-avatar">А</div></div>
-        <div class="master-info">
-          <h3>Артём</h3>
-          <div class="role">Старший барбер</div>
-          <div class="spec">Фейды, классика, бритьё</div>
-          <div class="exp">8 лет опыта</div>
-        </div>
-      </div>
-      <div class="master-card">
-        <div class="master-bg stone"><div class="master-avatar">Д</div></div>
-        <div class="master-info">
-          <h3>Дмитрий</h3>
-          <div class="role">Барбер-стилист</div>
-          <div class="spec">Модельные стрижки, бороды</div>
-          <div class="exp">5 лет опыта</div>
-        </div>
-      </div>
-      <div class="master-card">
-        <div class="master-bg zinc"><div class="master-avatar">Р</div></div>
-        <div class="master-info">
-          <h3>Руслан</h3>
-          <div class="role">Барбер</div>
-          <div class="spec">Камуфляж, стрижки машинкой</div>
-          <div class="exp">6 лет опыта</div>
-        </div>
-      </div>
+    <div class="masters-grid" id="mastersGrid">
+      <!-- Загружается динамически из API -->
     </div>
   </section>
 
@@ -452,6 +439,14 @@
         <div class="info">+7 (960) 408-37-44</div>
         <div class="chat-link" onclick="openChat()">Или напишите в чат</div>
       </div>
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section class="reviews-section" id="reviewsSection">
+    <h2>⭐ Отзывы клиентов</h2>
+    <div class="reviews-grid" id="reviewsGrid">
+      <div class="no-reviews">Загрузка...</div>
     </div>
   </section>
 
@@ -627,7 +622,7 @@
       { id: 'complex',    name: 'Стрижка + борода',     price: 2200, duration: 60, icon: '👑' },
       { id: 'camouflage', name: 'Камуфляж седины',      price: 1500, duration: 60, icon: '🎨' },
     ];
-    const MASTERS_LIST = ['Артём', 'Дмитрий', 'Руслан'];
+    let MASTERS_LIST = []; // loaded from API
 
     let calYear, calMonth;
     let selectedDate = null;
@@ -645,11 +640,21 @@
       calYear = now.getFullYear();
       calMonth = now.getMonth();
       try {
-        const res = await fetch('/api/shop-info');
-        if (res.ok) {
-          const s = await res.json();
+        const [shopRes, barbersRes] = await Promise.all([
+          fetch('/api/shop-info'),
+          fetch('/api/barbers')
+        ]);
+        if (shopRes.ok) {
+          const s = await shopRes.json();
           shopDayOff = s.day_off !== undefined ? s.day_off : -1;
           shopHolidays = s.holidays || [];
+        }
+        if (barbersRes.ok) {
+          const barbers = await barbersRes.json();
+          MASTERS_LIST = barbers.map(b => b.name);
+          const bc = document.getElementById('barbersCount');
+          if (bc) bc.textContent = barbers.length;
+          renderMastersSection(barbers);
         }
       } catch(e) {}
       // Update legend
@@ -658,7 +663,71 @@
         legend.textContent = DAY_NAMES[shopDayOff] + ' — выходной';
       }
       renderCalendar();
+      loadReviews();
     })();
+
+    // ─── Masters section (dynamic) ─────────────────
+    const CARD_GRADIENTS = [
+      'linear-gradient(135deg, #b45309, #eab308)',
+      'linear-gradient(135deg, #57534e, #a8a29e)',
+      'linear-gradient(135deg, #3f3f46, #71717a)',
+      'linear-gradient(135deg, #1e3a5f, #4a90d9)',
+      'linear-gradient(135deg, #5b2c6f, #a569bd)',
+      'linear-gradient(135deg, #1a5276, #48c9b0)',
+    ];
+
+    function renderMastersSection(barbers) {
+      const grid = document.getElementById('mastersGrid');
+      if (!grid) return;
+      if (!barbers.length) {
+        grid.innerHTML = '<p style="text-align:center;color:#999;grid-column:1/-1">Скоро здесь появятся наши мастера</p>';
+        return;
+      }
+      grid.innerHTML = barbers.map((b, i) => {
+        const initial = (b.name || '?')[0].toUpperCase();
+        const gradient = CARD_GRADIENTS[i % CARD_GRADIENTS.length];
+        const photo = b.photoUrl
+          ? `<img src="${b.photoUrl}" alt="${b.name}" style="width:90px;height:90px;border-radius:50%;object-fit:cover">`
+          : `<div class="master-avatar">${initial}</div>`;
+        const bio = b.bio || '';
+        const exp = b.experience || '';
+        return `<div class="master-card">
+          <div class="master-bg" style="background:${gradient}">${photo}</div>
+          <div class="master-info">
+            <h3>${b.name}</h3>
+            <div class="role">Барбер</div>
+            ${bio ? `<div class="spec">${bio}</div>` : ''}
+            ${exp ? `<div class="exp">${exp}</div>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // ─── Reviews on main page ──────────────────────
+    async function loadReviews() {
+      try {
+        const res = await fetch('/api/reviews');
+        if (!res.ok) return;
+        const reviews = await res.json();
+        const grid = document.getElementById('reviewsGrid');
+        if (!reviews.length) {
+          grid.innerHTML = '<div class="no-reviews">Пока нет отзывов. Будьте первым!</div>';
+          return;
+        }
+        grid.innerHTML = reviews.slice(0, 6).map(r => {
+          const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+          const date = new Date(r.created_at).toLocaleDateString('ru-RU');
+          return `<div class="review-card">
+            <div class="review-header">
+              <span class="review-name">${r.client_name}</span>
+              <span class="review-stars">${stars}</span>
+            </div>
+            <div class="review-text">${r.text.length > 150 ? r.text.slice(0, 150) + '...' : r.text}</div>
+            <div class="review-meta">${r.barber_name ? 'Барбер: ' + r.barber_name + ' · ' : ''}${date}</div>
+          </div>`;
+        }).join('');
+      } catch(e) {}
+    }
 
     function renderCalendar() {
       const titleEl = document.getElementById('calMonthTitle');

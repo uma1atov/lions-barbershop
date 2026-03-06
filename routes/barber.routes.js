@@ -154,22 +154,23 @@ router.patch("/admin/:id", authenticate, can("barbers:edit"), (req, res, next) =
 });
 
 // ─── DELETE /api/admin/barbers/:id ─────────────────
-// Admin: soft-delete (deactivate) barber
+// Admin: permanently delete barber
 router.delete("/admin/:id", authenticate, can("barbers:deactivate"), (req, res, next) => {
   try {
     const barbers = readJSON(FILES.barbers);
     const idx = barbers.findIndex((b) => b.id === req.params.id);
     if (idx === -1) return res.status(404).json({ error: "Барбер не найден" });
 
-    barbers[idx].isActive = false;
-    barbers[idx].updated_at = new Date().toISOString();
+    const deletedBarber = barbers[idx];
+    barbers.splice(idx, 1);
     writeJSON(FILES.barbers, barbers);
 
     logAudit({
       actorUserId: req.user.id,
-      action: "barber.deactivate",
+      action: "barber.delete",
       entityType: "barber",
       entityId: req.params.id,
+      meta: { name: deletedBarber.name },
       ip: req.ip,
     });
 
@@ -368,6 +369,24 @@ router.patch("/appointments/:id/status", authenticate, can("appointments:mark_st
         created_at: new Date().toISOString(),
       });
       writeJSON(FILES.payments, payments);
+    }
+
+    // Award 1 loyalty point to registered client
+    if (status === "completed" && bookings[idx].client_user_id) {
+      const users = readJSON(FILES.users);
+      const cIdx = users.findIndex((u) => u.id === bookings[idx].client_user_id);
+      if (cIdx !== -1) {
+        if (!users[cIdx].points) users[cIdx].points = 0;
+        if (!users[cIdx].points_history) users[cIdx].points_history = [];
+        users[cIdx].points += 1;
+        users[cIdx].points_history.push({
+          type: "booking_completed",
+          amount: 1,
+          booking_id: bookings[idx].id,
+          date: new Date().toISOString(),
+        });
+        writeJSON(FILES.users, users);
+      }
     }
 
     logAudit({
