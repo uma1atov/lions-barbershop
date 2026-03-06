@@ -56,6 +56,26 @@ app.get("/api/shop-info", (_req, res) => {
   });
 });
 
+// ─── Collaboration requests (public, no auth) ──────
+const { readJSON: readJ, writeJSON: writeJ, genId: gId } = require("./lib/db");
+const COLLAB_FILE = path.join(__dirname, "data", "collabs.json");
+app.post("/api/collab", (req, res) => {
+  const { name, phone, message, email } = req.body;
+  if (!name || !phone || !message) {
+    return res.status(400).json({ error: "Заполните имя, телефон и сообщение" });
+  }
+  let collabs = [];
+  try { collabs = JSON.parse(require("fs").readFileSync(COLLAB_FILE, "utf8")); } catch {}
+  const entry = {
+    id: gId(), name: name.trim(), phone: phone.trim(),
+    email: (email || "").trim(), message: message.trim(),
+    status: "new", created_at: new Date().toISOString(),
+  };
+  collabs.push(entry);
+  require("fs").writeFileSync(COLLAB_FILE, JSON.stringify(collabs, null, 2));
+  res.json({ ok: true });
+});
+
 // ─── Routes ─────────────────────────────────────────
 const authRoutes     = require("./routes/auth.routes");
 const serviceRoutes  = require("./routes/service.routes");

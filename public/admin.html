@@ -131,6 +131,7 @@
       <div class="tab" data-panel="audit">📝 Аудит</div>
       <div class="tab" data-panel="promo">🎟️ Промокоды</div>
       <div class="tab" data-panel="reviews">⭐ Отзывы</div>
+      <div class="tab" data-panel="collabs">🤝 Заявки</div>
       <div class="tab" data-panel="blacklist">🚫 Чёрный список</div>
       <div class="tab owner-only" data-panel="admins">👑 Админы</div>
       <div class="tab owner-only" data-panel="settings">⚙️ Настройки</div>
@@ -223,6 +224,12 @@
       <table><thead><tr><th>Клиент</th><th>Оценка</th><th>Отзыв</th><th>Барбер</th><th>Дата</th><th>Статус</th><th></th></tr></thead>
       <tbody id="reviewsBody"></tbody></table>
       <div class="empty" id="reviewsEmpty" style="display:none">Отзывов пока нет</div>
+    </div>
+
+    <!-- ═══ COLLABS ═══ -->
+    <div class="panel" id="collabsPanel">
+      <table><thead><tr><th>Имя</th><th>Телефон</th><th>Email</th><th>Сообщение</th><th>Дата</th><th></th></tr></thead>
+      <tbody id="collabsBody"></tbody></table>
     </div>
 
     <!-- ═══ BLACKLIST ═══ -->
@@ -825,6 +832,27 @@
       loadBlacklist();
     }
 
+    // ═══ COLLABS ═══
+    async function loadCollabs() {
+      const res = await fetch('/api/admin/collabs', { headers: hdr() });
+      const list = await res.json();
+      document.getElementById('collabsBody').innerHTML = list.map(c => `
+        <tr>
+          <td><strong>${esc(c.name)}</strong></td>
+          <td>${esc(c.phone)}</td>
+          <td>${esc(c.email || '—')}</td>
+          <td style="max-width:250px;white-space:pre-wrap;font-size:0.8rem">${esc(c.message)}</td>
+          <td style="font-size:0.72rem">${fmtDate(c.created_at?.split('T')[0])}</td>
+          <td><button class="btn-sm btn-delete" onclick="deleteCollab('${c.id}')">Удалить</button></td>
+        </tr>
+      `).join('') || '<tr><td colspan="6" style="text-align:center;color:#999">Нет заявок</td></tr>';
+    }
+    async function deleteCollab(id) {
+      if (!confirm('Удалить заявку?')) return;
+      await fetch('/api/admin/collabs/' + id, { method: 'DELETE', headers: hdr() });
+      loadCollabs();
+    }
+
     // ═══ ADMINS ═══
     async function loadAdmins() {
       if (!isOwner) return;
@@ -1072,7 +1100,7 @@
 
     // Init
     loadBookings(); loadBarbers(); loadServices(); loadUsers();
-    loadAnalytics(); loadAudit(); loadPromo(); loadBlacklist(); loadReviews();
+    loadAnalytics(); loadAudit(); loadPromo(); loadBlacklist(); loadReviews(); loadCollabs();
     loadProfile();
     if (isOwner) { loadAdmins(); loadSettings(); }
   </script>

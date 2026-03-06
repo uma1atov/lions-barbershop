@@ -523,4 +523,28 @@ router.post("/users/:id/points/take", authenticate, can("users:list"), (req, res
   } catch (err) { next(err); }
 });
 
+// ═══ COLLABORATION REQUESTS ═══════════════════════
+
+const path = require("path");
+const COLLAB_FILE = path.join(__dirname, "..", "data", "collabs.json");
+
+// ─── GET /api/admin/collabs — list all collab requests
+router.get("/collabs", authenticate, can("users:list"), (_req, res) => {
+  let collabs = [];
+  try { collabs = JSON.parse(require("fs").readFileSync(COLLAB_FILE, "utf8")); } catch {}
+  collabs.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
+  res.json(collabs);
+});
+
+// ─── DELETE /api/admin/collabs/:id — delete a collab request
+router.delete("/collabs/:id", authenticate, can("users:list"), (req, res) => {
+  let collabs = [];
+  try { collabs = JSON.parse(require("fs").readFileSync(COLLAB_FILE, "utf8")); } catch {}
+  const idx = collabs.findIndex(c => c.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: "Заявка не найдена" });
+  collabs.splice(idx, 1);
+  require("fs").writeFileSync(COLLAB_FILE, JSON.stringify(collabs, null, 2));
+  res.json({ ok: true });
+});
+
 module.exports = router;
