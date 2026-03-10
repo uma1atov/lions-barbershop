@@ -126,6 +126,7 @@
     <div class="tabs" id="tabsContainer">
       <div class="tab active" data-panel="bookings">📋 Записи</div>
       <div class="tab" data-panel="barbers">💈 Барберы</div>
+      <div class="tab" data-panel="laserStaff">✨ Лазер</div>
       <div class="tab" data-panel="services">🛠️ Услуги</div>
       <div class="tab" data-panel="users">👥 Пользователи</div>
       <div class="tab" data-panel="analytics">📊 Аналитика</div>
@@ -163,6 +164,13 @@
       <div style="margin-bottom:1rem"><button class="btn-add" onclick="openBarberModal()">+ Добавить барбера</button></div>
       <table><thead><tr><th>Имя</th><th>Описание</th><th>Опыт</th><th>Telegram</th><th>Упр.</th><th>Статус</th><th></th></tr></thead>
       <tbody id="barbersBody"></tbody></table>
+    </div>
+
+    <!-- ═══ LASER STAFF ═══ -->
+    <div class="panel" id="laserStaffPanel">
+      <div style="margin-bottom:1rem"><button class="btn-add" style="background:#4a90d9;color:#fff" onclick="openLaserStaffModal()">+ Добавить лазерного специалиста</button></div>
+      <table><thead><tr><th>Имя</th><th>Описание</th><th>Опыт</th><th>Телефон</th><th>Аккаунт</th><th>Статус</th><th></th></tr></thead>
+      <tbody id="laserStaffBody"></tbody></table>
     </div>
 
     <!-- ═══ SERVICES ═══ -->
@@ -230,7 +238,7 @@
 
     <!-- ═══ COLLABS ═══ -->
     <div class="panel" id="collabsPanel">
-      <table><thead><tr><th>Имя</th><th>Телефон</th><th>Email</th><th>Сообщение</th><th>Дата</th><th></th></tr></thead>
+      <table><thead><tr><th>Тип</th><th>Имя</th><th>Телефон</th><th>Email</th><th>Сообщение</th><th>Дата</th><th></th></tr></thead>
       <tbody id="collabsBody"></tbody></table>
     </div>
 
@@ -336,6 +344,29 @@
       <div class="modal-btns">
         <button class="btn-save" onclick="saveBarber()">Сохранить</button>
         <button class="btn-cancel" onclick="closeModal('barberModal')">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="laserStaffModal">
+    <div class="modal">
+      <h3 id="laserStaffModalTitle">Добавить лазерного специалиста</h3>
+      <input type="hidden" id="laserStaffEditId">
+      <div class="form-row">
+        <div class="form-group"><label>Имя</label><input type="text" id="lsName"></div>
+        <div class="form-group"><label>Опыт</label><input type="text" id="lsExperience" placeholder="3 года"></div>
+      </div>
+      <div class="form-group"><label>Описание</label><textarea id="lsBio"></textarea></div>
+      <div class="form-group"><label>Telegram Chat ID</label><input type="text" id="lsTelegram"></div>
+      <hr style="margin:1rem 0;border:none;border-top:1px solid #eee">
+      <div style="font-size:0.85rem;font-weight:600;color:var(--dark);margin-bottom:0.75rem">Аккаунт (необязательно)</div>
+      <div class="form-row">
+        <div class="form-group"><label>Телефон (логин)</label><input type="tel" id="lsPhone" placeholder="+7..."></div>
+        <div class="form-group"><label>Пароль</label><input type="password" id="lsPassword" placeholder="мин. 4 символа"></div>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-save" style="background:#4a90d9;color:#fff" onclick="saveLaserStaff()">Сохранить</button>
+        <button class="btn-cancel" onclick="closeModal('laserStaffModal')">Отмена</button>
       </div>
     </div>
   </div>
@@ -504,7 +535,8 @@
     let allBarbers = [];
     async function loadBarbers() {
       const res = await fetch('/api/barbers/admin', { headers: hdr() });
-      allBarbers = await res.json();
+      const allStaff = await res.json();
+      allBarbers = allStaff.filter(b => b.type !== 'laser');
       document.getElementById('statBarbers').textContent = allBarbers.filter(b => b.isActive).length;
 
       document.getElementById('barbersBody').innerHTML = allBarbers.map(b => `
@@ -556,6 +588,88 @@
       if (!confirm(label)) return;
       await fetch('/api/barbers/admin/' + id, { method: 'PATCH', headers: hdr(), body: JSON.stringify({ can_manage_bookings: enable }) });
       loadBarbers();
+    }
+
+    // ═══ LASER STAFF ═══
+    let allLaserStaff = [];
+    async function loadLaserStaff() {
+      const res = await fetch('/api/barbers/admin', { headers: hdr() });
+      const all = await res.json();
+      allLaserStaff = all.filter(b => b.type === 'laser');
+
+      document.getElementById('laserStaffBody').innerHTML = allLaserStaff.map(b => `
+        <tr style="${b.isActive ? '' : 'opacity:0.4'}">
+          <td><strong>${esc(b.name)}</strong></td>
+          <td style="max-width:180px;font-size:0.72rem;color:#888">${esc(b.bio || '—')}</td>
+          <td>${esc(b.experience || '—')}</td>
+          <td>${b.user_id ? '<span class="badge badge-active">Есть</span>' : '—'}</td>
+          <td>${b.user_id ? '<span class="badge badge-active">Да</span>' : '<span class="badge badge-inactive">Нет</span>'}</td>
+          <td><span class="badge ${b.isActive ? 'badge-active' : 'badge-inactive'}">${b.isActive ? 'Акт.' : 'Неакт.'}</span></td>
+          <td>
+            <button class="btn-sm btn-edit" onclick="editLaserStaff('${b.id}')">Ред.</button>
+            ${b.isActive ? `<button class="btn-sm btn-delete" onclick="toggleLaserStaff('${b.id}',false)">Деакт.</button>` : `<button class="btn-sm btn-edit" onclick="toggleLaserStaff('${b.id}',true)">Акт.</button>`}
+            <button class="btn-sm btn-delete" onclick="deleteLaserStaff('${b.id}','${esc(b.name)}')">Удалить</button>
+          </td>
+        </tr>
+      `).join('') || '<tr><td colspan="7" style="text-align:center;color:#999">Нет лазерных специалистов</td></tr>';
+    }
+
+    function openLaserStaffModal(b) {
+      document.getElementById('laserStaffEditId').value = b ? b.id : '';
+      document.getElementById('laserStaffModalTitle').textContent = b ? 'Редактировать' : 'Добавить лазерного специалиста';
+      document.getElementById('lsName').value = b ? b.name : '';
+      document.getElementById('lsBio').value = b ? (b.bio || '') : '';
+      document.getElementById('lsExperience').value = b ? (b.experience || '') : '';
+      document.getElementById('lsTelegram').value = b ? (b.telegramChatId || '') : '';
+      document.getElementById('lsPhone').value = '';
+      document.getElementById('lsPassword').value = '';
+      openModal('laserStaffModal');
+    }
+    function editLaserStaff(id) { const b = allLaserStaff.find(x => x.id === id); if (b) openLaserStaffModal(b); }
+
+    async function saveLaserStaff() {
+      const id = document.getElementById('laserStaffEditId').value;
+      const data = {
+        name: document.getElementById('lsName').value.trim(),
+        bio: document.getElementById('lsBio').value.trim(),
+        experience: document.getElementById('lsExperience').value.trim(),
+        telegramChatId: document.getElementById('lsTelegram').value.trim() || null,
+        type: 'laser'
+      };
+      if (!data.name) return alert('Укажите имя');
+
+      // Account creation (only for new specialists)
+      const phone = document.getElementById('lsPhone').value.trim();
+      const password = document.getElementById('lsPassword').value.trim();
+      if (phone && password) {
+        if (password.length < 4) return alert('Пароль минимум 4 символа');
+        data.create_account = true;
+        data.phone = phone;
+        data.password = password;
+      }
+
+      const res = await fetch(id ? '/api/barbers/admin/' + id : '/api/barbers/admin', {
+        method: id ? 'PATCH' : 'POST', headers: hdr(), body: JSON.stringify(data)
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        alert(err.error || 'Ошибка');
+        return;
+      }
+      closeModal('laserStaffModal');
+      loadLaserStaff();
+    }
+
+    async function toggleLaserStaff(id, activate) {
+      if (!confirm(activate ? 'Активировать?' : 'Деактивировать?')) return;
+      await fetch('/api/barbers/admin/' + id, { method: 'PATCH', headers: hdr(), body: JSON.stringify({ isActive: activate }) });
+      loadLaserStaff();
+    }
+
+    async function deleteLaserStaff(id, name) {
+      if (!confirm('Удалить специалиста «' + name + '» навсегда?')) return;
+      const res = await fetch('/api/barbers/admin/' + id, { method: 'DELETE', headers: hdr() });
+      if (res.ok) { loadLaserStaff(); } else { const d = await res.json(); alert(d.error || 'Ошибка'); }
     }
 
     // ═══ SERVICES ═══
@@ -846,16 +960,25 @@
     async function loadCollabs() {
       const res = await fetch('/api/admin/collabs', { headers: hdr() });
       const list = await res.json();
-      document.getElementById('collabsBody').innerHTML = list.map(c => `
-        <tr>
+      document.getElementById('collabsBody').innerHTML = list.map(c => {
+        const msg = c.message || '';
+        let typeBadge = '<span style="background:#6b7280;color:#fff;padding:2px 8px;border-radius:4px;font-size:0.75rem">Сотрудничество</span>';
+        let cleanMsg = msg;
+        if (msg.startsWith('[РАБОТА-ЛАЗЕР]')) { typeBadge = '<span style="background:#7c3aed;color:#fff;padding:2px 8px;border-radius:4px;font-size:0.75rem">Работа (лазер)</span>'; cleanMsg = msg.replace('[РАБОТА-ЛАЗЕР] ', ''); }
+        else if (msg.startsWith('[ОБУЧЕНИЕ-ЛАЗЕР]')) { typeBadge = '<span style="background:#9333ea;color:#fff;padding:2px 8px;border-radius:4px;font-size:0.75rem">Обучение (лазер)</span>'; cleanMsg = msg.replace('[ОБУЧЕНИЕ-ЛАЗЕР] ', ''); }
+        else if (msg.startsWith('[РАБОТА]')) { typeBadge = '<span style="background:#f59e0b;color:#fff;padding:2px 8px;border-radius:4px;font-size:0.75rem">Работа</span>'; cleanMsg = msg.replace('[РАБОТА] ', ''); }
+        else if (msg.startsWith('[ОБУЧЕНИЕ]')) { typeBadge = '<span style="background:#3b82f6;color:#fff;padding:2px 8px;border-radius:4px;font-size:0.75rem">Обучение</span>'; cleanMsg = msg.replace('[ОБУЧЕНИЕ] ', ''); }
+        else if (msg.startsWith('[ЛАЗЕР]')) { typeBadge = '<span style="background:#7c3aed;color:#fff;padding:2px 8px;border-radius:4px;font-size:0.75rem">Лазер</span>'; cleanMsg = msg.replace('[ЛАЗЕР] ', ''); }
+        return `<tr>
+          <td>${typeBadge}</td>
           <td><strong>${esc(c.name)}</strong></td>
           <td>${esc(c.phone)}</td>
           <td>${esc(c.email || '—')}</td>
-          <td style="max-width:250px;white-space:pre-wrap;font-size:0.8rem">${esc(c.message)}</td>
+          <td style="max-width:250px;white-space:pre-wrap;font-size:0.8rem">${esc(cleanMsg)}</td>
           <td style="font-size:0.72rem">${fmtDate(c.created_at?.split('T')[0])}</td>
           <td><button class="btn-sm btn-delete" onclick="deleteCollab('${c.id}')">Удалить</button></td>
-        </tr>
-      `).join('') || '<tr><td colspan="6" style="text-align:center;color:#999">Нет заявок</td></tr>';
+        </tr>`;
+      }).join('') || '<tr><td colspan="7" style="text-align:center;color:#999">Нет заявок</td></tr>';
     }
     async function deleteCollab(id) {
       if (!confirm('Удалить заявку?')) return;
@@ -1109,7 +1232,7 @@
     }
 
     // Init
-    loadBookings(); loadBarbers(); loadServices(); loadUsers();
+    loadBookings(); loadBarbers(); loadLaserStaff(); loadServices(); loadUsers();
     loadAnalytics(); loadAudit(); loadPromo(); loadBlacklist(); loadReviews(); loadCollabs();
     loadProfile();
     if (isOwner) { loadAdmins(); loadSettings(); }

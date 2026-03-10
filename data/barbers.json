@@ -66,5 +66,37 @@
     "day_offs": [],
     "created_at": "2026-01-01T00:00:00.000Z",
     "updated_at": "2026-03-05T22:33:07.526Z"
+  },
+  {
+    "id": "laser_said",
+    "name": "Саид",
+    "role": "laser",
+    "type": "laser",
+    "bio": "Лазерная эпиляция и косметология",
+    "photoUrl": "",
+    "telegramChatId": null,
+    "isActive": true,
+    "services": [
+      "laser_epilation",
+      "tattoo_removal",
+      "laser_rejuvenation",
+      "laser_other"
+    ],
+    "schedule": {
+      "0": { "start": "10:00", "end": "18:00", "breakStart": null, "breakEnd": null },
+      "1": { "start": "10:00", "end": "23:00", "breakStart": "13:00", "breakEnd": "14:00" },
+      "2": { "start": "10:00", "end": "23:00", "breakStart": "13:00", "breakEnd": "14:00" },
+      "3": { "start": "10:00", "end": "23:00", "breakStart": "13:00", "breakEnd": "14:00" },
+      "4": { "start": "10:00", "end": "23:00", "breakStart": "13:00", "breakEnd": "14:00" },
+      "5": { "start": "14:00", "end": "23:00", "breakStart": null, "breakEnd": null },
+      "6": { "start": "10:00", "end": "18:00", "breakStart": null, "breakEnd": null }
+    },
+    "experience": "",
+    "createdAt": "2026-03-01T00:00:00.000Z",
+    "user_id": null,
+    "vacations": [],
+    "day_offs": [],
+    "created_at": "2026-03-01T00:00:00.000Z",
+    "updated_at": "2026-03-10T00:00:00.000Z"
   }
 ]

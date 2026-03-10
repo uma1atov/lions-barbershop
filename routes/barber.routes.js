@@ -11,9 +11,16 @@ const { authorize, can } = require("../middleware/authorize");
 
 // ─── GET /api/barbers ──────────────────────────────
 // Public: list active barbers (for frontend)
+// ?type=laser — only laser specialists; default — only barbers
 router.get("/", (req, res) => {
+  const type = req.query.type || "barber";
   const barbers = readJSON(FILES.barbers)
-    .filter((b) => b.isActive)
+    .filter((b) => {
+      if (!b.isActive) return false;
+      if (type === "laser") return b.type === "laser";
+      if (type === "all") return true;
+      return b.type !== "laser"; // default: regular barbers
+    })
     .map((b) => ({
       id: b.id,
       name: b.name,
@@ -21,6 +28,7 @@ router.get("/", (req, res) => {
       photoUrl: b.photoUrl,
       services: b.services,
       experience: b.experience,
+      type: b.type || "barber",
     }));
   res.json(barbers);
 });
@@ -37,16 +45,18 @@ router.get("/admin", authenticate, can("barbers:create"), (req, res) => {
 // Admin: create barber + optionally create user account
 router.post("/admin", authenticate, can("barbers:create"), async (req, res, next) => {
   try {
-    const { name, bio, photoUrl, services, schedule, experience, telegramChatId, create_account, phone, password } = req.body;
-    if (!name) return res.status(400).json({ error: "Укажите имя барбера" });
+    const { name, bio, photoUrl, services, schedule, experience, telegramChatId, create_account, phone, password, type } = req.body;
+    if (!name) return res.status(400).json({ error: "Укажите имя" });
 
     const allServices = readJSON(FILES.services);
     const barbers = readJSON(FILES.barbers);
 
+    const staffType = type || "barber";
     const barber = {
-      id: "barber_" + genId(),
+      id: (staffType === "laser" ? "laser_" : "barber_") + genId(),
       name,
-      role: "barber",
+      role: staffType === "laser" ? "laser" : "barber",
+      type: staffType,
       bio: bio || "",
       photoUrl: photoUrl || "",
       telegramChatId: telegramChatId || null,
@@ -126,7 +136,7 @@ router.patch("/admin/:id", authenticate, can("barbers:edit"), (req, res, next) =
     const allowed = [
       "name", "bio", "photoUrl", "services", "schedule",
       "experience", "telegramChatId", "isActive", "vacations",
-      "can_manage_bookings",
+      "can_manage_bookings", "type",
     ];
     const changes = {};
 

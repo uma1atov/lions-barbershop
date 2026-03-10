@@ -2,13 +2,13 @@
   "max_admins": 3,
   "max_owner_admins": 2,
   "min_booking_lead_minutes": 10,
-  "work_start_hour": 9,
-  "work_end_hour": 20,
+  "work_start_hour": 10,
+  "work_end_hour": 23,
   "day_off": -1,
   "discount_registered_percent": 10,
   "booking_slot_step_minutes": 60,
   "shop_name": "The Lion's Den Barbershop",
-  "shop_address": "",
+  "shop_address": "с. Карабудахкент, ул. Солтанбека, 30к1",
   "shop_phone": "",
   "holidays": []
 }

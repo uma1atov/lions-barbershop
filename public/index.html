@@ -193,6 +193,59 @@
     .master-info .spec { color: #888; font-size: 0.8rem; margin-top: 0.5rem; }
     .master-info .exp { color: #aaa; font-size: 0.75rem; margin-top: 0.2rem; }
 
+    /* CTA CARDS */
+    .master-card.cta { border: 2px dashed var(--gold); background: #faf9f6; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 260px; transition: transform 0.2s, box-shadow 0.3s; }
+    .master-card.cta:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+    .cta-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .cta-plus { width: 48px; height: 48px; border-radius: 50%; background: var(--gold); color: #fff; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; margin-bottom: 0.8rem; }
+    .cta-label { font-size: 1rem; font-weight: 600; color: var(--dark); }
+    .cta-sub { font-size: 0.8rem; color: #888; margin-top: 0.3rem; }
+
+    /* JOIN MODAL */
+    .join-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center; }
+    .join-modal-overlay.active { display: flex; }
+    .join-modal { background: #fff; border-radius: 16px; padding: 2rem; width: 90%; max-width: 440px; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .join-modal h3 { font-size: 1.3rem; color: var(--dark); margin-bottom: 1rem; }
+    .join-modal input, .join-modal textarea { width: 100%; padding: 0.7rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; margin-bottom: 0.8rem; box-sizing: border-box; font-family: inherit; }
+    .join-modal textarea { height: 80px; resize: vertical; }
+    .join-modal input:focus, .join-modal textarea:focus { border-color: var(--gold); outline: none; }
+    .join-modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999; }
+    .join-modal-close:hover { color: #333; }
+    .join-modal-btn { width: 100%; padding: 0.8rem; background: var(--gold); color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .join-modal-btn:hover { background: #b8960c; }
+    .join-modal-success { display: none; text-align: center; color: #16a34a; font-weight: 500; margin-top: 0.5rem; }
+
+    /* LASER */
+    .laser-section { padding: 5rem 1.5rem; background: #f8f9fa; }
+    .laser-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; max-width: 900px; margin: 0 auto; }
+    .laser-card { background: #fff; border-radius: 16px; padding: 2rem 1.5rem; text-align: center; cursor: pointer; box-shadow: 0 2px 15px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.3s; border: 2px solid transparent; }
+    .laser-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.1); border-color: #4a90d9; }
+    .laser-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+    .laser-card h3 { font-size: 1.05rem; color: var(--dark); margin-bottom: 0.4rem; }
+    .laser-price { color: #4a90d9; font-weight: 700; font-size: 1rem; }
+
+    /* LASER BOOKING accent (blue theme) */
+    #laserBooking .cal-day.selected { background: #4a90d9 !important; color: #fff !important; }
+    #laserBooking .cal-day.today { border-color: #4a90d9; }
+    #laserBooking .cal-day:hover:not(.empty):not(.past):not(.day-off) { background: rgba(74,144,217,0.15); }
+    #laserBooking .svc-option.active { border-color: #4a90d9; background: rgba(74,144,217,0.08); }
+    #laserBooking .svc-option:hover { border-color: rgba(74,144,217,0.5); }
+    #laserBooking .svc-option .svc-price { color: #4a90d9; }
+    #laserBooking .slot.active { background: #4a90d9; color: #fff; border-color: #4a90d9; }
+    #laserBooking .slot:hover:not(.busy) { border-color: rgba(74,144,217,0.5); }
+    #laserBooking .slots-title .date-badge { background: #4a90d9; color: #fff; }
+    #laserBooking .step-label .num { background: #4a90d9; color: #fff; }
+    #laserBooking .book-btn { background: #4a90d9; color: #fff; }
+    #laserBooking .book-btn:hover { background: #3a7bc8; }
+    #laserBooking .book-summary strong { color: #4a90d9; }
+    #laserBooking .master-opt.active { border-color: #4a90d9; background: rgba(74,144,217,0.08); }
+    #laserBooking .master-opt:hover { border-color: rgba(74,144,217,0.5); }
+
+    /* LASER CTA cards blue accent */
+    .master-card.cta-laser { border: 2px dashed #4a90d9; background: #f0f6ff; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 260px; transition: transform 0.2s, box-shadow 0.3s; }
+    .master-card.cta-laser:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+    .master-card.cta-laser .cta-plus { background: #4a90d9; }
+
     /* CONTACTS */
     .contacts { padding: 5rem 1.5rem; background: var(--dark); color: #fff; }
     .contacts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2.5rem; max-width: 900px; margin: 0 auto; text-align: center; }
@@ -308,6 +361,7 @@
         <a href="#services">Услуги</a>
         <a href="#booking">Записаться</a>
         <a href="#masters">Барберы</a>
+        <a href="#laser">Лазер</a>
         <a href="#contacts">Контакты</a>
         <a href="#collab">Сотрудничество</a>
       </nav>
@@ -331,6 +385,7 @@
       <div class="stats">
         <div><div class="num">5+</div><div class="label">лет опыта</div></div>
         <div><div class="num" id="barbersCount">—</div><div class="label">барбера</div></div>
+        <div><div class="num" id="laserCount">—</div><div class="label">лазерный специалист</div></div>
       </div>
     </div>
   </section>
@@ -437,6 +492,83 @@
     </div>
   </section>
 
+  <!-- LASER TEAM -->
+  <section class="masters" id="laser" style="background:#f8f9fa">
+    <div class="section-tag" style="color:#4a90d9">Команда</div>
+    <div class="section-title">Лазерные специалисты</div>
+    <div class="masters-grid" id="laserMastersGrid">
+      <!-- Загружается динамически -->
+    </div>
+  </section>
+
+  <!-- LASER SERVICES -->
+  <section class="laser-section">
+    <div class="section-tag" style="color:#4a90d9">Лазерная косметология</div>
+    <div class="section-title">Лазерные процедуры</div>
+    <div class="laser-grid">
+      <div class="laser-card" onclick="document.getElementById('laserBooking').scrollIntoView({behavior:'smooth'})">
+        <div class="laser-icon">✨</div>
+        <h3>Лазерная эпиляция</h3>
+        <div class="laser-price">от 500 ₽</div>
+      </div>
+      <div class="laser-card" onclick="document.getElementById('laserBooking').scrollIntoView({behavior:'smooth'})">
+        <div class="laser-icon">🎯</div>
+        <h3>Удаление тату</h3>
+        <div class="laser-price">от 1 000 ₽</div>
+      </div>
+      <div class="laser-card" onclick="document.getElementById('laserBooking').scrollIntoView({behavior:'smooth'})">
+        <div class="laser-icon">💎</div>
+        <h3>Лазерное омоложение</h3>
+        <div class="laser-price">от 1 500 ₽</div>
+      </div>
+      <div class="laser-card" onclick="document.getElementById('laserBooking').scrollIntoView({behavior:'smooth'})">
+        <div class="laser-icon">📋</div>
+        <h3>Другая процедура</h3>
+        <div class="laser-price">Уточнить</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LASER BOOKING CALENDAR -->
+  <section class="booking" id="laserBooking" style="background:#e8f0fe">
+    <div class="booking-container">
+      <div class="section-tag" style="color:#4a90d9">Онлайн-запись</div>
+      <div class="section-title">Запись на лазерные процедуры</div>
+
+      <div class="booking-grid">
+        <!-- Left: Calendar -->
+        <div>
+          <div class="cal-card" style="border:2px solid #4a90d9">
+            <div class="cal-header" style="background:#1e3a5f">
+              <button class="cal-nav" onclick="laserCalPrev()">&#9664;</button>
+              <span class="month-title" id="laserCalMonthTitle"></span>
+              <button class="cal-nav" onclick="laserCalNext()">&#9654;</button>
+            </div>
+            <div class="cal-weekdays">
+              <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+            </div>
+            <div class="cal-days" id="laserCalDays"></div>
+          </div>
+          <div style="display:flex;gap:1.25rem;margin-top:1rem;font-size:0.75rem;color:#888;justify-content:center;flex-wrap:wrap">
+            <span>🟢 Свободно</span>
+            <span>🔴 Занято</span>
+          </div>
+        </div>
+
+        <!-- Right: Slots & Form -->
+        <div class="slots-panel" id="laserSlotsPanel">
+          <div class="slots-card">
+            <div class="no-date-msg" id="laserNoDateMsg">
+              <div class="icon">📅</div>
+              <p>Выберите дату в календаре<br><span style="color:#ccc;font-size:0.8rem">и мы покажем свободные слоты</span></p>
+            </div>
+            <div id="laserSlotsContent" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- CONTACTS -->
   <section class="contacts" id="contacts">
     <div class="section-tag">Как нас найти</div>
@@ -445,18 +577,21 @@
       <div>
         <div class="contact-icon">📍</div>
         <h3>Адрес</h3>
-        <div class="info">ул. Примерная, д. 42<br>Москва</div>
+        <div class="info">ул. Солтанбека, 30к1<br>с. Карабудахкент</div>
       </div>
       <div>
         <div class="contact-icon">🕐</div>
         <h3>Режим работы</h3>
-        <div class="info">Ежедневно: 9:00 — 20:00<br>Без выходных</div>
+        <div class="info">Ежедневно: 10:00 — 23:00<br>Пятница: с 14:00<br>Без выходных</div>
       </div>
       <div>
         <div class="contact-icon">📞</div>
         <h3>Телефон</h3>
         <div class="info">+7 (960) 408-37-44</div>
-        <div class="chat-link" onclick="openChat()">Или напишите в чат</div>
+        <div style="display:flex;gap:0.8rem;justify-content:center;margin-top:0.8rem">
+          <a href="https://wa.me/79604083744" target="_blank" style="display:inline-flex;align-items:center;gap:0.4rem;background:#25D366;color:#fff;padding:0.5rem 1rem;border-radius:8px;text-decoration:none;font-size:0.85rem;font-weight:600">💬 WhatsApp</a>
+          <a href="https://t.me/+79604083744" target="_blank" style="display:inline-flex;align-items:center;gap:0.4rem;background:#2AABEE;color:#fff;padding:0.5rem 1rem;border-radius:8px;text-decoration:none;font-size:0.85rem;font-weight:600">✈️ Telegram</a>
+        </div>
       </div>
     </div>
   </section>
@@ -659,12 +794,28 @@
       { id: 'camouflage', name: 'Камуфляж седины',      price: 1500, duration: 60, icon: '🎨' },
     ];
     let MASTERS_LIST = []; // loaded from API
+    let LASER_MASTERS_LIST = []; // loaded from API
+
+    const LASER_SERVICES_LIST = [
+      { id: 'laser_epilation',    name: 'Лазерная эпиляция',   price: 500,  duration: 60, icon: '✨' },
+      { id: 'tattoo_removal',     name: 'Удаление тату',       price: 1000, duration: 60, icon: '🎯' },
+      { id: 'laser_rejuvenation', name: 'Лазерное омоложение', price: 1500, duration: 60, icon: '💎' },
+      { id: 'laser_other',        name: 'Другая процедура',    price: 0,    duration: 60, icon: '📋' },
+    ];
 
     let calYear, calMonth;
     let selectedDate = null;
     let selectedService = null;
     let selectedMaster = null;
     let selectedTime = null;
+
+    // Laser calendar state (must be declared before initCal)
+    let laserCalYear, laserCalMonth;
+    let laserSelectedDate = null;
+    let laserSelectedService = null;
+    let laserSelectedMaster = null;
+    let laserSelectedTime = null;
+    let laserCurrentSlots = null;
     let currentSlots = null;
     let clientPoints = 0;
     let clientExpiringPoints = 0;
@@ -695,10 +846,13 @@
       const now = new Date();
       calYear = now.getFullYear();
       calMonth = now.getMonth();
+      laserCalYear = calYear;
+      laserCalMonth = calMonth;
       try {
-        const [shopRes, barbersRes] = await Promise.all([
+        const [shopRes, barbersRes, laserRes] = await Promise.all([
           fetch('/api/shop-info'),
-          fetch('/api/barbers')
+          fetch('/api/barbers'),
+          fetch('/api/barbers?type=laser')
         ]);
         if (shopRes.ok) {
           const s = await shopRes.json();
@@ -712,6 +866,13 @@
           if (bc) bc.textContent = barbers.length;
           renderMastersSection(barbers);
         }
+        if (laserRes.ok) {
+          const laserSpecs = await laserRes.json();
+          LASER_MASTERS_LIST = laserSpecs.map(b => b.name);
+          const lc = document.getElementById('laserCount');
+          if (lc) lc.textContent = laserSpecs.length;
+          renderLaserMastersSection(laserSpecs);
+        }
       } catch(e) {}
       // Update legend
       const legend = document.getElementById('dayOffLegend');
@@ -719,6 +880,7 @@
         legend.textContent = DAY_NAMES[shopDayOff] + ' — выходной';
       }
       renderCalendar();
+      renderLaserCalendar();
       loadReviews();
     })();
 
@@ -757,6 +919,21 @@
           </div>
         </div>`;
       }).join('');
+
+      // CTA cards (barber)
+      grid.innerHTML += `
+        <div class="master-card cta" onclick="openJoinModal('barber')">
+          <div class="cta-icon">✂️</div>
+          <div class="cta-plus">+</div>
+          <div class="cta-label">Стать барбером</div>
+          <div class="cta-sub">Оставить заявку на работу</div>
+        </div>
+        <div class="master-card cta" onclick="openJoinModal('training')">
+          <div class="cta-icon">📚</div>
+          <div class="cta-plus">+</div>
+          <div class="cta-label">Обучение</div>
+          <div class="cta-sub">Заявка на обучение барберу</div>
+        </div>`;
     }
 
     // ─── Reviews on main page ──────────────────────
@@ -1121,6 +1298,388 @@
         btn.textContent = 'Отправить заявку';
       }
     }
+
+    // ─── Join Modal ────────────────────────────────
+    const JOIN_TITLES = {
+      barber: 'Стать барбером',
+      training: 'Заявка на обучение барберу',
+      laser_specialist: 'Стать лазерным специалистом',
+      laser_training: 'Обучение лазерным процедурам'
+    };
+    const JOIN_PLACEHOLDERS = {
+      barber: 'Расскажите о себе и опыте...',
+      training: 'Расскажите, чему хотите научиться...',
+      laser_specialist: 'Расскажите о себе и опыте работы с лазером...',
+      laser_training: 'Расскажите, чему хотите научиться...'
+    };
+
+    function openJoinModal(type) {
+      document.getElementById('joinModalTitle').textContent = JOIN_TITLES[type] || 'Заявка';
+      document.getElementById('joinMessage').placeholder = JOIN_PLACEHOLDERS[type] || 'Сообщение...';
+      document.getElementById('joinType').value = type;
+      document.getElementById('joinSuccess').style.display = 'none';
+      document.getElementById('joinModalOverlay').classList.add('active');
+    }
+
+    function closeJoinModal() {
+      document.getElementById('joinModalOverlay').classList.remove('active');
+    }
+
+    async function submitJoinForm(e) {
+      e.preventDefault();
+      const btn = document.getElementById('joinBtn');
+      const type = document.getElementById('joinType').value;
+      const prefixMap = { barber: '[РАБОТА]', training: '[ОБУЧЕНИЕ]', laser_specialist: '[РАБОТА-ЛАЗЕР]', laser_training: '[ОБУЧЕНИЕ-ЛАЗЕР]' };
+      const prefix = prefixMap[type] || '[РАБОТА]';
+      btn.disabled = true;
+      btn.textContent = 'Отправка...';
+      try {
+        const res = await fetch('/api/collab', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: document.getElementById('joinName').value.trim(),
+            phone: document.getElementById('joinPhone').value.trim(),
+            message: prefix + ' ' + document.getElementById('joinMessage').value.trim(),
+          })
+        });
+        if (!res.ok) throw new Error('Ошибка');
+        document.getElementById('joinSuccess').style.display = 'block';
+        e.target.reset();
+        document.getElementById('joinType').value = type;
+        setTimeout(() => closeJoinModal(), 3000);
+      } catch (err) {
+        alert('Не удалось отправить заявку. Попробуйте позже.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Отправить заявку';
+      }
+    }
+
+    // ─── Laser Masters Section (dynamic) ──────────────
+    function renderLaserMastersSection(laserSpecs) {
+      const grid = document.getElementById('laserMastersGrid');
+      if (!grid) return;
+      if (!laserSpecs.length) {
+        grid.innerHTML = '<p style="text-align:center;color:#999;grid-column:1/-1">Скоро здесь появятся наши специалисты</p>';
+      } else {
+        grid.innerHTML = laserSpecs.map((b, i) => {
+          const initial = (b.name || '?')[0].toUpperCase();
+          const gradient = 'linear-gradient(135deg, #1e3a5f, #4a90d9)';
+          const photo = b.photoUrl
+            ? `<img src="${b.photoUrl}" alt="${b.name}" style="width:90px;height:90px;border-radius:50%;object-fit:cover">`
+            : `<div class="master-avatar">${initial}</div>`;
+          const bio = b.bio || '';
+          const exp = b.experience || '';
+          return `<div class="master-card">
+            <div class="master-bg" style="background:${gradient}">${photo}</div>
+            <div class="master-info">
+              <h3>${b.name}</h3>
+              <div class="role" style="color:#4a90d9">Лазерный специалист</div>
+              ${bio ? `<div class="spec">${bio}</div>` : ''}
+              ${exp ? `<div class="exp">${exp}</div>` : ''}
+            </div>
+          </div>`;
+        }).join('');
+      }
+
+      // CTA cards (laser)
+      grid.innerHTML += `
+        <div class="master-card cta-laser" onclick="openJoinModal('laser_specialist')">
+          <div class="cta-icon">✨</div>
+          <div class="cta-plus">+</div>
+          <div class="cta-label">Стать специалистом</div>
+          <div class="cta-sub">Заявка на работу лазерщиком</div>
+        </div>
+        <div class="master-card cta-laser" onclick="openJoinModal('laser_training')">
+          <div class="cta-icon">📚</div>
+          <div class="cta-plus">+</div>
+          <div class="cta-label">Обучение</div>
+          <div class="cta-sub">Заявка на обучение лазеру</div>
+        </div>`;
+    }
+
+    // ═══════════════════════════════════════════════════
+    // LASER BOOKING CALENDAR
+    // ═══════════════════════════════════════════════════
+
+    function renderLaserCalendar() {
+      const titleEl = document.getElementById('laserCalMonthTitle');
+      if (!titleEl) return;
+      titleEl.textContent = MONTHS_RU[laserCalMonth] + ' ' + laserCalYear;
+
+      const daysEl = document.getElementById('laserCalDays');
+      daysEl.innerHTML = '';
+
+      const firstDay = new Date(laserCalYear, laserCalMonth, 1);
+      let startDay = firstDay.getDay();
+      startDay = startDay === 0 ? 6 : startDay - 1;
+
+      const daysInMonth = new Date(laserCalYear, laserCalMonth + 1, 0).getDate();
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      for (let i = 0; i < startDay; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'cal-day empty';
+        daysEl.appendChild(btn);
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const btn = document.createElement('button');
+        btn.className = 'cal-day';
+        btn.textContent = d;
+
+        const date = new Date(laserCalYear, laserCalMonth, d);
+        const dateStr = formatDate(date);
+        const isPast = date < today;
+        const isDayOff = (shopDayOff >= 0 && date.getDay() === shopDayOff) || shopHolidays.includes(dateStr);
+        const isToday = date.getTime() === today.getTime();
+        const isSelected = laserSelectedDate === dateStr;
+
+        if (isPast) btn.classList.add('past');
+        if (isDayOff) btn.classList.add('day-off');
+        if (isToday) btn.classList.add('today');
+        if (isSelected) btn.classList.add('selected');
+
+        if (!isPast && !isDayOff) {
+          btn.onclick = () => laserSelectDate(dateStr);
+        }
+
+        daysEl.appendChild(btn);
+      }
+    }
+
+    function laserCalPrev() {
+      laserCalMonth--;
+      if (laserCalMonth < 0) { laserCalMonth = 11; laserCalYear--; }
+      renderLaserCalendar();
+    }
+
+    function laserCalNext() {
+      laserCalMonth++;
+      if (laserCalMonth > 11) { laserCalMonth = 0; laserCalYear++; }
+      renderLaserCalendar();
+    }
+
+    async function laserSelectDate(dateStr) {
+      laserSelectedDate = dateStr;
+      laserSelectedTime = null;
+      renderLaserCalendar();
+
+      const content = document.getElementById('laserSlotsContent');
+      const noMsg = document.getElementById('laserNoDateMsg');
+      noMsg.style.display = 'none';
+      content.style.display = 'block';
+      content.innerHTML = '<div style="text-align:center;padding:2rem;color:#999"><div style="font-size:2rem;margin-bottom:0.5rem">⏳</div>Загрузка слотов...</div>';
+
+      try {
+        const res = await fetch(`/api/slots?date=${dateStr}&type=laser`);
+        const data = await res.json();
+        laserCurrentSlots = data;
+
+        if (data.closed) {
+          content.innerHTML = `<div class="closed-msg"><div class="icon">😴</div>${data.message || 'Выходной день'}<br><span style="font-size:0.8rem;font-weight:400;color:#999">Выберите другую дату</span></div>`;
+          return;
+        }
+
+        renderLaserBookingForm(data);
+      } catch (e) {
+        content.innerHTML = '<div style="text-align:center;padding:2rem;color:#e57373">Ошибка загрузки. Попробуйте ещё раз.</div>';
+      }
+    }
+
+    function renderLaserBookingForm(data) {
+      const content = document.getElementById('laserSlotsContent');
+
+      let html = `
+        <div class="slots-title">Запись на <span class="date-badge">${formatDateRu(laserSelectedDate)}</span></div>
+
+        <!-- Step 1: Service -->
+        <div class="step-label"><span class="num">1</span> Выберите процедуру</div>
+        <div class="svc-select-grid">
+          ${LASER_SERVICES_LIST.map(s => {
+            return `<div class="svc-option ${laserSelectedService === s.id ? 'active' : ''}" onclick="laserPickService('${s.id}')">
+              <div class="svc-name">${s.icon} ${s.name}</div>
+              <div class="svc-price">${s.price ? s.price + '₽' : 'Уточнить'}</div>
+              <div class="svc-time">${s.duration} мин</div>
+            </div>`;
+          }).join('')}
+        </div>`;
+
+      // Step 2: Master (if multiple laser specialists)
+      if (LASER_MASTERS_LIST.length > 1) {
+        html += `
+          <div class="step-label"><span class="num">2</span> Выберите специалиста</div>
+          <div class="master-select">
+            <div class="master-opt ${laserSelectedMaster === null ? 'active' : ''}" onclick="laserPickMaster(null)">Любой</div>
+            ${LASER_MASTERS_LIST.map(m => `<div class="master-opt ${laserSelectedMaster === m ? 'active' : ''}" onclick="laserPickMaster('${m}')">${m}</div>`).join('')}
+          </div>`;
+      }
+
+      // Step 3: Time
+      const stepNum = LASER_MASTERS_LIST.length > 1 ? 3 : 2;
+      html += `
+        <div class="step-label"><span class="num">${stepNum}</span> Выберите время</div>
+        <div class="slots-grid">`;
+
+      data.slots.forEach(slot => {
+        let isBusy = false;
+        let statusText = '';
+        const isPast = !!slot.isPast;
+
+        if (isPast) {
+          isBusy = true;
+          statusText = 'прошло';
+        } else if (laserSelectedMaster) {
+          isBusy = !slot.masters[laserSelectedMaster]?.free;
+          statusText = isBusy ? 'занято' : 'свободно';
+        } else {
+          isBusy = slot.allBusy;
+          const free = slot.freeCount || 0;
+          statusText = isBusy ? 'всё занято' : `свободно (${free})`;
+        }
+        const isActive = laserSelectedTime === slot.time;
+        html += `<div class="slot ${isBusy ? 'busy' : ''} ${isPast ? 'past-slot' : ''} ${isActive ? 'active' : ''}"
+                      onclick="${isBusy ? '' : `laserPickTime('${slot.time}')`}">
+                   ${slot.time}
+                   <div class="slot-status">${statusText}</div>
+                 </div>`;
+      });
+
+      html += '</div>';
+
+      // Step 4: Contact info
+      const nextStep = LASER_MASTERS_LIST.length > 1 ? 4 : 3;
+      const isLoggedIn = !!currentUser;
+      html += `
+        <div class="step-label"><span class="num">${nextStep}</span> Ваши данные</div>
+        <div class="book-form">
+          <div class="form-row">
+            <input type="text" id="laserBookName" placeholder="Ваше имя" value="${isLoggedIn ? currentUser.name : ''}">
+            <input type="tel" id="laserBookPhone" placeholder="Телефон" value="${isLoggedIn ? currentUser.phone : ''}">
+          </div>`;
+
+      // Summary
+      if (laserSelectedService && laserSelectedTime) {
+        const svc = LASER_SERVICES_LIST.find(s => s.id === laserSelectedService);
+        html += `
+          <div class="book-summary">
+            📋 <strong>${svc.name}</strong> · ${formatDateRu(laserSelectedDate)} в ${laserSelectedTime}<br>
+            👤 Специалист: <strong>${laserSelectedMaster || 'любой свободный'}</strong><br>
+            💰 Стоимость: <strong>${svc.price ? svc.price + '₽' : 'Уточняется'}</strong>
+          </div>`;
+      }
+
+      html += `
+          <button class="book-btn" onclick="submitLaserBooking()" ${!laserSelectedService || !laserSelectedTime ? 'disabled' : ''}>
+            ✨ Записаться на лазер
+          </button>
+        </div>`;
+
+      content.innerHTML = html;
+    }
+
+    function laserPickService(id) {
+      laserSelectedService = id;
+      if (laserCurrentSlots) renderLaserBookingForm(laserCurrentSlots);
+    }
+
+    function laserPickMaster(name) {
+      laserSelectedMaster = name;
+      laserSelectedTime = null;
+      if (laserCurrentSlots) renderLaserBookingForm(laserCurrentSlots);
+    }
+
+    function laserPickTime(time) {
+      laserSelectedTime = time;
+      if (laserCurrentSlots) renderLaserBookingForm(laserCurrentSlots);
+    }
+
+    async function submitLaserBooking() {
+      const name = document.getElementById('laserBookName').value.trim();
+      const phone = document.getElementById('laserBookPhone').value.trim();
+
+      if (!name) return alert('Укажите имя');
+      if (!phone) return alert('Укажите телефон');
+      if (!laserSelectedService) return alert('Выберите процедуру');
+      if (!laserSelectedTime) return alert('Выберите время');
+
+      const svc = LASER_SERVICES_LIST.find(s => s.id === laserSelectedService);
+
+      const btn = document.querySelector('#laserBooking .book-btn');
+      btn.disabled = true;
+      btn.textContent = 'Записываем...';
+
+      try {
+        const hdrs = { 'Content-Type': 'application/json' };
+        if (token) hdrs['Authorization'] = 'Bearer ' + token;
+
+        const res = await fetch('/api/book', {
+          method: 'POST',
+          headers: hdrs,
+          body: JSON.stringify({
+            name,
+            phone,
+            service: svc.name,
+            date: laserSelectedDate,
+            time: laserSelectedTime,
+            master: laserSelectedMaster || 'любой свободный',
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'Ошибка при записи');
+          btn.disabled = false;
+          btn.innerHTML = '✨ Записаться на лазер';
+          return;
+        }
+
+        const content = document.getElementById('laserSlotsContent');
+        content.innerHTML = `
+          <div class="book-success">
+            <div class="check">✅</div>
+            <h3>Вы записаны!</h3>
+            <p>
+              <strong>${svc.name}</strong><br>
+              ${formatDateRu(laserSelectedDate)} в ${laserSelectedTime}<br>
+              Специалист: ${laserSelectedMaster || 'любой свободный'}<br>
+              Стоимость: ${svc.price ? svc.price + '₽' : 'Уточняется'}<br><br>
+              Ждём вас! ✨
+            </p>
+            <button class="btn-new" onclick="resetLaserBooking()" style="background:#4a90d9;color:#fff">Новая запись</button>
+          </div>`;
+      } catch (e) {
+        alert('Ошибка сети. Попробуйте позже.');
+        btn.disabled = false;
+        btn.innerHTML = '✨ Записаться на лазер';
+      }
+    }
+
+    function resetLaserBooking() {
+      laserSelectedService = null;
+      laserSelectedMaster = null;
+      laserSelectedTime = null;
+      if (laserSelectedDate) laserSelectDate(laserSelectedDate);
+    }
   </script>
+
+  <!-- Join Team Modal -->
+  <div class="join-modal-overlay" id="joinModalOverlay" onclick="if(event.target===this)closeJoinModal()">
+    <div class="join-modal">
+      <button class="join-modal-close" onclick="closeJoinModal()">&times;</button>
+      <h3 id="joinModalTitle">Стать барбером</h3>
+      <form onsubmit="submitJoinForm(event)">
+        <input type="text" id="joinName" placeholder="Ваше имя" required>
+        <input type="tel" id="joinPhone" placeholder="Телефон" required>
+        <textarea id="joinMessage" placeholder="Расскажите о себе и опыте..." required></textarea>
+        <input type="hidden" id="joinType" value="barber">
+        <button type="submit" class="join-modal-btn" id="joinBtn">Отправить заявку</button>
+        <div class="join-modal-success" id="joinSuccess">Заявка отправлена! Мы свяжемся с вами.</div>
+      </form>
+    </div>
+  </div>
+
 </body>
 </html>

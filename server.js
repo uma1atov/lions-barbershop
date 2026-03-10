@@ -74,6 +74,44 @@ app.post("/api/collab", (req, res) => {
   collabs.push(entry);
   require("fs").writeFileSync(COLLAB_FILE, JSON.stringify(collabs, null, 2));
   res.json({ ok: true });
+
+  // Email-уведомление владельцу (async, не блокирует ответ)
+  const notifyEmail = process.env.NOTIFY_EMAIL;
+  if (notifyEmail && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    try {
+      const nodemailer = require("nodemailer");
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || "smtp.mail.ru",
+        port: parseInt(process.env.SMTP_PORT || "465"),
+        secure: process.env.SMTP_SECURE === "true",
+        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      });
+      const msg = entry.message || "";
+      let typeLabel = "Сотрудничество";
+      if (msg.startsWith("[РАБОТА-ЛАЗЕР]")) typeLabel = "Заявка на работу (лазер)";
+      else if (msg.startsWith("[ОБУЧЕНИЕ-ЛАЗЕР]")) typeLabel = "Заявка на обучение (лазер)";
+      else if (msg.startsWith("[РАБОТА]")) typeLabel = "Заявка на работу";
+      else if (msg.startsWith("[ОБУЧЕНИЕ]")) typeLabel = "Заявка на обучение";
+      else if (msg.startsWith("[ЛАЗЕР]")) typeLabel = "Запись на лазер";
+
+      transporter.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        to: notifyEmail,
+        subject: `Lion's Den: ${typeLabel} — ${entry.name}`,
+        text: `Новая заявка!\n\nТип: ${typeLabel}\nИмя: ${entry.name}\nТелефон: ${entry.phone}\nEmail: ${entry.email || "—"}\nСообщение: ${msg}\n\nДата: ${entry.created_at}`,
+        html: `<h2>Новая заявка: ${typeLabel}</h2>
+          <table style="border-collapse:collapse">
+            <tr><td style="padding:4px 12px;font-weight:bold">Тип:</td><td style="padding:4px 12px">${typeLabel}</td></tr>
+            <tr><td style="padding:4px 12px;font-weight:bold">Имя:</td><td style="padding:4px 12px">${entry.name}</td></tr>
+            <tr><td style="padding:4px 12px;font-weight:bold">Телефон:</td><td style="padding:4px 12px">${entry.phone}</td></tr>
+            <tr><td style="padding:4px 12px;font-weight:bold">Email:</td><td style="padding:4px 12px">${entry.email || "—"}</td></tr>
+            <tr><td style="padding:4px 12px;font-weight:bold">Сообщение:</td><td style="padding:4px 12px">${msg}</td></tr>
+          </table>`,
+      }).catch(e => console.error("Email notify error:", e.message));
+    } catch (e) {
+      console.error("Email setup error:", e.message);
+    }
+  }
 });
 
 // ─── Routes ─────────────────────────────────────────

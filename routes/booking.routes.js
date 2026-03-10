@@ -7,6 +7,25 @@ const { logAudit } = require("../lib/audit");
 const { authenticate, optionalAuth } = require("../middleware/authenticate");
 const { can } = require("../middleware/authorize");
 
+// ─── Московское время (UTC+3) ───────────────────────
+function moscowNow() {
+  const now = new Date();
+  // Сдвигаем на UTC+3: getTimezoneOffset() возвращает минуты от UTC (отрицательные для восточных)
+  // Приводим к UTC, затем добавляем 3 часа
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
+  return new Date(utcMs + 3 * 60 * 60 * 1000);
+}
+
+function moscowDate(dateStr, timeStr) {
+  // Парсим дату/время как московское (без сдвига часового пояса)
+  // dateStr = "YYYY-MM-DD", timeStr = "HH:MM" (или undefined)
+  const iso = timeStr ? `${dateStr}T${timeStr}:00` : `${dateStr}T00:00:00`;
+  const d = new Date(iso);
+  // Убираем локальный сдвиг и ставим UTC+3, чтобы сравнение было корректным
+  const utcMs = d.getTime() + d.getTimezoneOffset() * 60 * 1000;
+  return new Date(utcMs + 3 * 60 * 60 * 1000);
+}
+
 // ─── GET /api/slots?date=YYYY-MM-DD ────────────────
 // Public: get available slots for a date
 router.get("/slots", (req, res, next) => {
@@ -20,7 +39,7 @@ router.get("/slots", (req, res, next) => {
     const MIN_LEAD = settings.min_booking_lead_minutes || 0;
 
     // Check day off (-1 = no day off)
-    const d = new Date(date + "T00:00:00");
+    const d = moscowDate(date);
     const dow = d.getDay();
     if (settings.day_off >= 0 && dow === settings.day_off) {
       return res.json({ closed: true, message: "Выходной день" });
@@ -31,12 +50,18 @@ router.get("/slots", (req, res, next) => {
       return res.json({ closed: true, message: "Праздничный день" });
     }
 
-    const now = new Date();
+    const now = moscowNow();
     const leadMs = MIN_LEAD * 60 * 1000;
     const bookings = readJSON(FILES.bookings).filter(
       (b) => b.date === date && b.status !== "cancelled"
     );
-    const barbers = readJSON(FILES.barbers).filter((b) => b.isActive);
+    // Filter barbers by type: "laser" for laser specialists, default for barbers
+    const slotType = req.query.type || "barber";
+    const barbers = readJSON(FILES.barbers).filter((b) => {
+      if (!b.isActive) return false;
+      if (slotType === "laser") return b.type === "laser";
+      return b.type !== "laser"; // default: only regular barbers
+    });
 
     // Get barber names (active only)
     const masterNames = barbers.map((b) => b.name);
@@ -59,11 +84,15 @@ router.get("/slots", (req, res, next) => {
       return res.json({ date, closed: true, message: "Все мастера в выходном" });
     }
 
+    // Пятница (dow=5): работа с 14:00
+    const isFriday = dow === 5;
+    const effectiveStart = isFriday ? Math.max(WORK_START, 14) : WORK_START;
+
     // Build slots
     const slots = [];
-    for (let h = WORK_START; h < WORK_END; h++) {
+    for (let h = effectiveStart; h < WORK_END; h++) {
       const time = String(h).padStart(2, "0") + ":00";
-      const slotStart = new Date(`${date}T${time}:00`);
+      const slotStart = moscowDate(date, time);
       const isPast = slotStart.getTime() <= now.getTime() + leadMs;
 
       const masterSlots = {};
@@ -131,7 +160,7 @@ router.post("/book", optionalAuth, (req, res, next) => {
     const MIN_LEAD = settings.min_booking_lead_minutes || 0;
 
     // Check day off (-1 = no day off)
-    const d = new Date(date + "T00:00:00");
+    const d = moscowDate(date);
     if (settings.day_off >= 0 && d.getDay() === settings.day_off) {
       return res.status(400).json({ error: "Выходной день" });
     }
@@ -139,9 +168,14 @@ router.post("/book", optionalAuth, (req, res, next) => {
       return res.status(400).json({ error: "Праздничный день" });
     }
 
-    // Check past time
-    const slotStart = new Date(`${date}T${time}:00`);
-    const now = new Date();
+    // Пятница: работа только с 14:00
+    if (d.getDay() === 5 && parseInt(time.split(":")[0], 10) < 14) {
+      return res.status(400).json({ error: "По пятницам запись доступна с 14:00" });
+    }
+
+    // Check past time (московское время)
+    const slotStart = moscowDate(date, time);
+    const now = moscowNow();
     const leadMs = MIN_LEAD * 60 * 1000;
     if (slotStart.getTime() <= now.getTime() + leadMs) {
       return res.status(400).json({
